@@ -130,11 +130,56 @@ async def get_user_name(user_id):
             admin_name = await cur.fetchone()
             return admin_name[0]
 
+async def check_user_in_formaccess(user_id):
+    # 0 - Неизвестная ошибка
+    # 10 - Все ок
+    # 11 - Пользователь админ
+    # 12 - Пользователь лидер/зам
+    # 13 - Пользователю уже выдана форма (этап заполнения)
+    # 14 - Пользователю уже выдана форма (этап одобрения)
+    statusCode = 0
+    async with conn.cursor() as cur:
+        await cur.execute("SELECT is_check FROM formaccess WHERE vk_id=%s", user_id)
+        await conn.commit()
+        if cur.rowcount <= 0:
+            await cur.execute("SELECT id FROM leaders WHERE vk_id=%s", user_id)
+            await conn.commit()
+            if cur.rowcount <= 0:
+                await cur.execute("SELECT id FROM admins WHERE vk_id=%s", user_id)
+                await conn.commit()
+                if cur.rowcount <= 0:
+                    statusCode = 10
+                    return statusCode
+                else:
+                    statusCode = 11
+                    return statusCode
+            else:
+                statusCode = 12
+                return statusCode
+        else:
+            row = await cur.fetchone()
+            is_check = row[0]
+            if is_check:
+                statusCode = 14
+                return statusCode
+            else:
+                statusCode = 13
+                return statusCode
+    return statusCode
+
+
 # Сеттеры
 
 
 async def set_test_info(adm_name, test_text):
     async with conn.cursor() as cur:
         await cur.execute("INSERT INTO `test_report`(`adm_name`, `test_text`, `date`) VALUES (%s, %s, CURRENT_DATE())", (adm_name, test_text,))
+        await conn.commit()
+    return True
+
+
+async def set_formaccess(uid, adm_id, adm_name, type_form):
+    async with conn.cursor() as cur:
+        await cur.execute("INSERT INTO `formaccess`(`vk_id`, `type_form`, `vk_id_adm`, `name_adm`, `is_check`) VALUES (%s, %s, %s, %s, 0)", (uid, type_form, adm_id, adm_name))
         await conn.commit()
     return True

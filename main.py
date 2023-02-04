@@ -17,7 +17,6 @@ for custom_labeler in labelers:
 async def start(loop):
     await db_connect.connection(loop)
 
-
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     loop.run_until_complete(start(loop))
