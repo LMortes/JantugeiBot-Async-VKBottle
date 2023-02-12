@@ -35,9 +35,8 @@ async def send_form_message(user_id, message):
     return True
 
 
-async def send_user_message_formdecline(user_id, user_name, adm_id, adm_name):
-    message = f'👋🏻 Приветствую {user_name}\n\n'\
-                '😢 У вашего VK был изъят доступ к заполнению формы\n'\
+async def send_user_message_formdecline(user_id, adm_id, adm_name):
+    message =   '😢 У вашего VK был изъят доступ к заполнению формы\n'\
                 f'администратором [id{adm_id}|{adm_name}], по всем вопросам писать ему!\n\n'\
                 '© By Jantugei Inc.'
     try:

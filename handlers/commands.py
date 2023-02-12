@@ -350,7 +350,6 @@ async def polling_form_done(message: Message):
                 for row in forms_info_adm:  # Формирование сообщения в конфу
                     new_form_admin_message += f'👤 Игровой ник администратора: [id{row[1]}|{row[3]}][D:{row[11]}]\n' \
                                               f'🔢 Возраст: {row[2]}\n' \
-                                              f'💼 Организация: {row[5]}\n' \
                                               f'👥 Должность: {row[4]}\n' \
                                               f'💻 Discord: {row[7]}\n' \
                                               f'🔧 Ссылка на форумный аккаунт: {row[6]}\n' \
@@ -412,7 +411,6 @@ async def polling_form_done(message: Message):
                 for row in forms_info_adm:  # Формирование сообщения в конфу
                     new_form_admin_message += f'👤 Игровой ник администратора: [id{row[1]}|{row[3]}][D:{row[11]}]\n' \
                                               f'🔢 Возраст: {row[2]}\n' \
-                                              f'💼 Организация: {row[5]}\n' \
                                               f'👥 Должность: {row[4]}\n' \
                                               f'💻 Discord: {row[7]}\n' \
                                               f'🔧 Ссылка на форумный аккаунт: {row[6]}\n' \
@@ -448,8 +446,8 @@ async def click_button_form(event: GroupTypes.MessageEvent):
         adm_name = await get_user_name(adm_id)
         user_name = await get_user_name(user_id)
         is_remove = ''
-        message_decline = f'[id{event.object.user_id}|{adm_name}] отказал форму [id{user_id}|{user_name}]'
-        message_accept = f'[id{event.object.user_id}|{adm_name}] одобрил форму [id{user_id}|{user_name}]'
+        message_decline = f'[id{event.object.user_id}|{adm_name}] отказал форму'
+        message_accept = f'[id{event.object.user_id}|{adm_name}] одобрил форму'
         message_remove_form = '✅ Форма успешно удалена из базы данных. Все доступы к заполнению формы сняты.'
         message_remove_form_error = '⚠ Произошла ошибка при удалении формы из базы данных или форма была удалена ранее.'
         message_for_user = '✅ Отправка в личные сообщения успешна'
@@ -467,7 +465,7 @@ async def click_button_form(event: GroupTypes.MessageEvent):
                 is_remove = await remove_formaccess_done_admin(user_id)
             if is_remove:
                 await bot.api.messages.send(peer_id=event.object.peer_id, message=message_remove_form, random_id=0)
-                is_send_user_message = await send_user_message_formdecline(user_id, user_name, adm_id, adm_name)
+                is_send_user_message = await send_user_message_formdecline(user_id, adm_id, adm_name)
                 if is_send_user_message:
                     await bot.api.messages.send(peer_id=event.object.peer_id, message=message_for_user, random_id=0)
                 else:
