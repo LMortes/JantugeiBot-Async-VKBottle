@@ -344,8 +344,8 @@ async def polling_form_done(message: Message):
                 new_form_admin_message = '🆕 Поступила новая форма на администратора 🆕\n\n'
                 keyboard = (  # Объявление кнопок в сообщении
                     Keyboard(inline=True)
-                        .add(Callback("✅ Одобрить", {"cmd": "accept_admin_form"}), color=KeyboardButtonColor.POSITIVE)
-                        .add(Callback("❎ Отказать", {"cmd": "decline_admin_form"}), color=KeyboardButtonColor.NEGATIVE)
+                        .add(Callback("🌀 Одобрить", {"cmd": "accept_admin_form"}), color=KeyboardButtonColor.POSITIVE)
+                        .add(Callback("⭕ Отказать", {"cmd": "decline_admin_form"}), color=KeyboardButtonColor.NEGATIVE)
                 )
                 for row in forms_info_adm:  # Формирование сообщения в конфу
                     new_form_admin_message += f'👤 Игровой ник администратора: [id{row[1]}|{row[3]}][D:{row[11]}]\n' \
@@ -367,8 +367,8 @@ async def polling_form_done(message: Message):
                 new_form_leader_message = '🆕 Поступила новая форма на лидера/заместителя 🆕\n\n'
                 keyboard = (  # Объявление кнопок в сообщении
                     Keyboard(inline=True)
-                        .add(Callback("✅ Одобрить", {"cmd": "accept_leader_form"}), color=KeyboardButtonColor.POSITIVE)
-                        .add(Callback("❎ Отказать", {"cmd": "decline_leader_form"}), color=KeyboardButtonColor.NEGATIVE)
+                        .add(Callback("🌀 Одобрить", {"cmd": "accept_leader_form"}), color=KeyboardButtonColor.POSITIVE)
+                        .add(Callback("⭕ Отказать", {"cmd": "decline_leader_form"}), color=KeyboardButtonColor.NEGATIVE)
                 )
                 for row in forms_info_leader:  # Формирование сообщения в конфу
                     new_form_leader_message += f'👤 Игровой ник: [id{row[1]}|{row[3]}]\n' \
@@ -392,13 +392,13 @@ async def polling_form_done(message: Message):
                 new_form_admin_message = '🆕 Поступила новая форма на администратора 🆕\n\n'
                 keyboard = (  # Объявление кнопок в сообщении для формы лидера
                     Keyboard(inline=True)
-                        .add(Callback("✅ Одобрить", {"cmd": "accept_leader_form"}), color=KeyboardButtonColor.POSITIVE)
-                        .add(Callback("❎ Отказать", {"cmd": "decline_leader_form"}), color=KeyboardButtonColor.NEGATIVE)
+                        .add(Callback("🌀 Одобрить", {"cmd": "accept_leader_form"}), color=KeyboardButtonColor.POSITIVE)
+                        .add(Callback("⭕ Отказать", {"cmd": "decline_leader_form"}), color=KeyboardButtonColor.NEGATIVE)
                 )
                 keyboard2 = (  # Объявление кнопок в сообщении для формы админа
                     Keyboard(inline=True)
-                        .add(Callback("✅ Одобрить", {"cmd": "accept_admin_form"}), color=KeyboardButtonColor.POSITIVE)
-                        .add(Callback("❎ Отказать", {"cmd": "decline_admin_form"}), color=KeyboardButtonColor.NEGATIVE)
+                        .add(Callback("🌀 Одобрить", {"cmd": "accept_admin_form"}), color=KeyboardButtonColor.POSITIVE)
+                        .add(Callback("⭕ Отказать", {"cmd": "decline_admin_form"}), color=KeyboardButtonColor.NEGATIVE)
                 )
                 for row in forms_info_leader:  # Формирование сообщения в конфу
                     new_form_leader_message += f'👤 Игровой ник: [id{row[1]}|{row[3]}]\n' \
