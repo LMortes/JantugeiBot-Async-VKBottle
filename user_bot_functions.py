@@ -1,5 +1,6 @@
 from settings import api
 from vkbottle import VKAPIError
+from dialog_ids import *
 
 
 async def check_friends_and_add(user_id):
@@ -33,3 +34,20 @@ async def send_form_message(user_id, message):
         return False
     return True
 
+
+async def send_user_message_formdecline(user_id, user_name, adm_id, adm_name):
+    message = f'👋🏻 Приветствую {user_name}\n\n'\
+                '😢 К сожалению мы были вынуждены отказать в вашей форме.\n'\
+                '🤔 Возможно вы допустили ошибки при заполнении.\n' \
+                '🤔 Попросите администратора снова выдать вам доступ к заполнению формы.\n' \
+                f'ℹ Подробную информацию о отклонении вашей формы вы можете узнать у [id{adm_id}|{adm_name}].\n\n'\
+                '© By Jantugei Inc.'
+    try:
+        send_message = await api.messages.send(peer_id=user_id, message=message, random_id=0)
+    except:
+        return False
+    return True
+
+
+async def testqwe():
+    pass
