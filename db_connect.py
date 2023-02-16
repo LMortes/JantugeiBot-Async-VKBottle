@@ -231,6 +231,42 @@ async def get_current_info_form_done(user_id):
             info = await cur.fetchall()
     return info[0]
 
+
+async def get_info_leader(user_id):
+    async with conn.cursor() as cur:
+        await cur.execute("SELECT * FROM leaders WHERE vk_id=%s", user_id)
+        await conn.commit()
+        if cur.rowcount > 0:
+            leader_info = await cur.fetchone()
+            response_leader_info = {
+                "leader_info": leader_info,
+                "status": True
+            }
+        else:
+            response_leader_info = {
+                "leader_info": [],
+                "status": False
+            }
+    return response_leader_info
+
+async def get_admin_info(user_id):
+    async with conn.cursor() as cur:
+        await cur.execute("SELECT * FROM admins WHERE vk_id=%s", user_id)
+        await conn.commit()
+        if cur.rowcount > 0:
+            admin_info = await cur.fetchone()
+            response_admin_info = {
+                "admin_info": admin_info,
+                "status": True
+            }
+        else:
+            response_admin_info = {
+                "admin_info": [],
+                "status": False
+            }
+    return response_admin_info
+
+
 # Есть ли записи по id в таблицах form_done_leader и form_done_adm
 async def is_find_current_form_done(user_id):
     async with conn.cursor() as cur:
@@ -245,16 +281,6 @@ async def is_find_current_form_done(user_id):
                 return True
             else:
                 return False
-
-
-# async def is_find_formaccess(user_id):
-#     async with conn.cursor() as cur:
-#         await cur.execute("SELECT * FROM formaccess WHERE vk_id=%s", user_id)
-#         await conn.commit()
-#         if cur.rowcount > 0:
-#             return True
-#         else:
-#             return False
 
 # Сеттеры и удаление
 
@@ -284,7 +310,7 @@ async def set_leader(user_id):
             form_leader_info = await cur.fetchone()
         async with conn.cursor() as cur:  # Занесение лидера в общую талицу leaders
             await cur.execute(
-                "INSERT INTO `leaders`(`vk_id`, `server_name`, `org`, `status`, `vigs`, `warns`, `start_date`, `end_date`, `score`, `age_reallife`, `forumprofile`, `discord`) VALUES (%s, %s, %s, %s, 0, 0, CURRENT_DATE(), CURRENT_DATE(), 0, %s, %s, %s)",
+                "INSERT INTO `leaders`(`vk_id`, `server_name`, `org`, `status`, `vigs`, `warns`, `start_date`, `end_date`, `score`, `age_reallife`, `forumprofile`, `discord`) VALUES (%s, %s, %s, %s, 0, 0, CURRENT_DATE(), TIMESTAMPADD(DAY, 30, CURRENT_DATE()), 0, %s, %s, %s)",
                 (form_leader_info[1],
                  form_leader_info[3],
                  form_leader_info[5],

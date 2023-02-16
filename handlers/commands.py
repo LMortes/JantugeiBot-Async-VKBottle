@@ -1,3 +1,4 @@
+import datetime
 import re
 from vkbottle import GroupTypes, GroupEventType, Keyboard, Callback, KeyboardButtonColor
 from vkbottle.bot import Message
@@ -35,7 +36,7 @@ async def hi_handler(message: Message):
                 '0️⃣/peer_id - посмотреть ID беседы у паблика. \n' \
                 '0️⃣/dostup - посмотреть свой уровень доступа в боте. \n' \
                 '0️⃣/ao - посмотреть уникальный айди вк по упоминанию. \n' \
-                '0️⃣/info - посмотреть статистику пользователя. \n' \
+                '0️⃣/info - посмотреть статистику пользователя(без параметров - своя статистика). \n' \
                 '0️⃣/members - вывести актуальный список пользователей. \n' \
                 '0️⃣/warnhistory - вывести историю выдачи или снятия наказаний у пользователя. \n' \
                 '0️⃣/scorehistory - вывести историю выдачи или снятия баллов у пользователя. \n' \
@@ -139,28 +140,91 @@ async def cmd_ao(message: Message, ping=None):
     else:
         await message.answer('⚙ Используйте следующий синтаксис: /ao [@Упоминание]')
 
+@bl.message(CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]), text=['/info', '/info <screen_name>'])
+async def cmd_info(message: Message, screen_name=None):
+    dostup = await get_user_dostup(message.from_id)
+    # try:
+    #     uid = re.findall(r'[0-9]+', screen_name)[0]
+    # except:
+    #     await message.answer('⚠ Упоминание введено некорректно или такого пользователя не существует')
+    if screen_name is not None: # Дописать info с параметрами
+        pass
+    else:
+        if dostup == 0:
+            leader_info = await get_info_leader(message.from_id)
+
+            if leader_info["status"]:
+                days_on_post = datetime.date.today() - leader_info["leader_info"][7]
+                days_remove = leader_info["leader_info"][8] - datetime.date.today()
+                message_info = f'🗂 Основая информация о пользователе:\n'\
+                                f'👤 Ник пользователя: [id{leader_info["leader_info"][1]}|{leader_info["leader_info"][2]}]\n'\
+                                f'👥 Должность: {leader_info["leader_info"][4]}\n'\
+                                f'🗺 Сервер: -\n'\
+                                f'📅 Дата назначения: {leader_info["leader_info"][7]}\n'\
+                                f'📅 Дата снятия: {leader_info["leader_info"][8]}\n'\
+                                f'📅 Дней на посту: {days_on_post.days}\n'\
+                                f'📅 Дней до снятия: {days_remove.days}\n'\
+                                f'🖥 Discord: {leader_info["leader_info"][13]}\n\n'\
+                                f'🧾 Наказания и баллы:\n'\
+                                f'⛔ Выговоры: {leader_info["leader_info"][5]}\n'\
+                                f'⚠ Предупреждения: {leader_info["leader_info"][6]}\n'\
+                                f'🪙 Баллы: {leader_info["leader_info"][10]}\n\n'\
+                                f'⏰ Онлайн:\n'\
+                                f'⏲ 🔜 В разработке'
+                await message.answer(message_info)
+        else:
+            admin_info = await get_admin_info(message.from_id)
+            if admin_info["status"]:
+                days_on_post = datetime.date.today() - admin_info["admin_info"][8]
+                message_info = '🗂 Основная информация о администраторе:\n'\
+                                f'👤 Ник администратора: [id{admin_info["admin_info"][1]}|{admin_info["admin_info"][2]}][{admin_info["admin_info"][4]}]\n'\
+                                f'🔢 Уровень администратора: {admin_info["admin_info"][7]}\n'\
+                                f'👥 Уровень доступа: [D:{admin_info["admin_info"][6]}]\n'\
+                                f'👥 Должность: {admin_info["admin_info"][5]}\n'\
+                                f'🗺 Сервер: - \n'\
+                                f'📅 Дата назначения: {admin_info["admin_info"][8]}\n'\
+                                f'📅 Дней на посту: {days_on_post.days}\n'\
+                                f'🖥 Discord: {admin_info["admin_info"][12]}\n\n'\
+                                f'🧾 Наказание и баллы:\n'\
+                                f'⛔ Выговоры: {admin_info["admin_info"][13]}\n'\
+                                f'⚠ Предупреждения: {admin_info["admin_info"][14]}\n'\
+                                f'🪙 Баллы: {admin_info["admin_info"][10]}\n\n'\
+                                f'🧾 Онлайн:\n'\
+                                f'⏲ 🔜 В разработке'
+                await message.answer(message_info)
 
 # Команды для 4 уровня доступа и выше
 
 
 
-# @bl.message(CheckUserDostup([4, 5, 6, 7, 8, 9, 10, 11]), text=['/formremove', '/formremove <screen_name>'])
-# async def cmd_formremove(message: Message, screen_name=None):
-#     if screen_name is not None:
-#         # Добыча id пользователя из упоминания
-#         try:
-#             uid = re.findall(r'[0-9]+', screen_name)[0]
-#         except:
-#             await message.answer('⚠ Упоминание введено некорректно или такого пользователя не существует')
-#         is_find_form_done = await is_find_current_form_done(uid)
-#         if not is_find_form_done:
-#             is_find_formaccess = await is_find_formaccess(uid)
-#         else:
-#             message_find_form_done = 'Данный пользователь находится на стадии одобрения, то есть он уже заполнил форму. В случае если это не так, обратитесь к руководству Jantugei Inc.'
-#             await message.answer(message_find_form_done)
-#     else:
-#         syntax_message = '⚠ Используйте следующий синтаксис: /formremove [@Упоминание]'
-#         await message.answer(syntax_message)
+@bl.message(CheckUserDostup([4, 5, 6, 7, 8, 9, 10, 11]), text=['/formremove', '/formremove <screen_name>'])
+async def cmd_formremove(message: Message, screen_name=None):
+    if screen_name is not None:
+        # Добыча id пользователя из упоминания
+        try:
+            uid = re.findall(r'[0-9]+', screen_name)[0]
+        except:
+            await message.answer('⚠ Упоминание введено некорректно или такого пользователя не существует')
+        is_find_form_done = await is_find_current_form_done(uid)
+        if not is_find_form_done:
+            is_delete_formaccess = await remove_formaccess(uid)
+            if is_delete_formaccess:
+                await message.answer(f'Доступ к заполнению формы у [id{uid}|Пользователя] успешно снят.')
+                adm_id = message.from_id
+                adm_name = await get_user_name(adm_id)
+                is_send_user_message = await send_user_message_formdecline(uid, adm_id, adm_name)
+                if is_send_user_message:
+                    await message.answer('✅ Отправка в личные сообщения успешна ✅')
+                else:
+                    await message.answer('🚫 Произвошла неизвестная ошибка при отправке в личные сообщения 🚫')
+            else:
+                await message.answer('Данный пользователь не имеет доступа к заполнению формы')
+        else:
+            message_find_form_done = 'Данный пользователь находится на стадии одобрения, то есть он уже заполнил форму. В случае если это не так, обратитесь к руководству Jantugei Inc.'
+            await message.answer(message_find_form_done)
+    else:
+        syntax_message = '⚠ Используйте следующий синтаксис: /formremove [@Упоминание]'
+        await message.answer(syntax_message)
 
 
 
@@ -307,6 +371,7 @@ async def cmd_test(message: Message, text=None):
         try:
             await set_test_info(adm_name, text)
             await message.answer('✅ Тест успешно записан и передан тестироващикам!')
+            await bot.api.messages.send(peer_id=TESTERS_DIALOG_ID, message='🔔 Поступил новый тест-репорт. Чтобы вывести список введите - /testlist 🔔', random_id=0)
         except:
             await message.answer('⚠ Неизвестная ошибка!')
     else:
@@ -448,10 +513,11 @@ async def polling_form_done(message: Message):
 
             # else:
             #     await message.answer('✅ Ничего не найдено')  # Убрать, когда будет полностью рабочая система
-            await asyncio.sleep(180)  # Задержка поллинга таблицы с формами
-    except:
+            
+            await asyncio.sleep(120)  # Задержка поллинга таблицы с формами
+    except Exception as err:
         await message.answer('⚠ По неизвестной причине поллинг базы данных прекращен')
-        print('⚠ По неизвестной причине поллинг базы данных прекращен')
+        print('⚠ По неизвестной причине поллинг базы данных прекращен. Ошибка: ', err)
 
 
 @bl.raw_event(GroupEventType.MESSAGE_EVENT, dataclass=GroupTypes.MessageEvent)
