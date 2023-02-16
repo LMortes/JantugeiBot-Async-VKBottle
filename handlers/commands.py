@@ -448,7 +448,7 @@ async def polling_form_done(message: Message):
 
             # else:
             #     await message.answer('✅ Ничего не найдено')  # Убрать, когда будет полностью рабочая система
-            await asyncio.sleep(180)  # Задержка поллинга таблицы с формами
+            await asyncio.sleep(120)  # Задержка поллинга таблицы с формами
     except:
         await message.answer('⚠ По неизвестной причине поллинг базы данных прекращен')
         print('⚠ По неизвестной причине поллинг базы данных прекращен')
