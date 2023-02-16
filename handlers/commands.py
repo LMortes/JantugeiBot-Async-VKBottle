@@ -449,9 +449,9 @@ async def polling_form_done(message: Message):
             # else:
             #     await message.answer('✅ Ничего не найдено')  # Убрать, когда будет полностью рабочая система
             await asyncio.sleep(120)  # Задержка поллинга таблицы с формами
-    except:
+    except Exception as err:
         await message.answer('⚠ По неизвестной причине поллинг базы данных прекращен')
-        print('⚠ По неизвестной причине поллинг базы данных прекращен')
+        print('⚠ По неизвестной причине поллинг базы данных прекращен. Ошибка: ', err)
 
 
 @bl.raw_event(GroupEventType.MESSAGE_EVENT, dataclass=GroupTypes.MessageEvent)
