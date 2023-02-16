@@ -18,6 +18,7 @@ async def connection(loop):
     except:
         print('Возникла ошибка при подключении к базе данных')
 
+
 # Геттеры
 
 # Каждые 3 минуты чекает базу на наличие заполненных форм
@@ -29,18 +30,16 @@ async def get_info_from_formaccess_done():
             await cur.execute("SELECT * FROM form_done_adm")
             await conn.commit()
             if cur.rowcount > 0:
-                return 3 # Найдены формы и на лидера и на админа
+                return 3  # Найдены формы и на лидера и на админа
             else:
-                return 2 # Найдена форма на лидера
+                return 2  # Найдена форма на лидера
         else:
             await cur.execute("SELECT * FROM form_done_adm")
             await conn.commit()
             if cur.rowcount > 0:
-                return 1 # Найдена форма на админа
+                return 1  # Найдена форма на админа
             else:
-                return 0 # Ничего не найдено
-
-
+                return 0  # Ничего не найдено
 
         # if cur.rowcount <= 0:
         #     await cur.execute("SELECT * FROM form_done_adm")
@@ -51,6 +50,7 @@ async def get_info_from_formaccess_done():
         #         return 1    # Найдена форма на админа
         # else:
         #     return 2    # Найдена форма на лмдера
+
 
 # Доделать, разделение 3 тестов в разные переменные
 async def get_testlist():
@@ -162,6 +162,7 @@ async def get_user_name(user_id):
             admin_name = await cur.fetchone()
             return admin_name[0]
 
+
 async def check_user_in_formaccess(user_id):
     # 0 - Неизвестная ошибка
     # 10 - Все ок
@@ -199,7 +200,8 @@ async def check_user_in_formaccess(user_id):
                 return statusCode
     return statusCode
 
-async def get_info_form_leader():
+
+async def get_info_form_leader():  # Добыть все строки из таблицы form_done_leader
     async with conn.cursor() as cur:
         await cur.execute("SELECT * FROM form_done_leader")
         await conn.commit()
@@ -207,7 +209,8 @@ async def get_info_form_leader():
         return form_info
 
 
-async def get_info_form_adm():              # Дописать в распределение по беседам в зависимости от доступа
+# Добыть все строки из таблицы form_done_adm
+async def get_info_form_adm():  # Дописать в распределение по беседам в зависимости от доступа
     async with conn.cursor() as cur:
         await cur.execute("SELECT * FROM form_done_adm")
         await conn.commit()
@@ -215,22 +218,110 @@ async def get_info_form_adm():              # Дописать в распред
         return form_info
 
 
+# Добыть строку из таблицы form_done_* по конкретному id
+async def get_current_info_form_done(user_id):
+    async with conn.cursor() as cur:
+        await cur.execute("SELECT * FROM form_done_leader WHERE vk_id=%s", user_id)
+        await conn.commit()
+        if cur.rowcount > 0:
+            info = await cur.fetchall()
+        else:
+            await cur.execute("SELECT * FROM form_done_adm WHERE vk_id=%s", user_id)
+            await conn.commit()
+            info = await cur.fetchall()
+    return info[0]
+
+# Есть ли записи по id в таблицах form_done_leader и form_done_adm
+async def is_find_current_form_done(user_id):
+    async with conn.cursor() as cur:
+        await cur.execute("SELECT * FROM form_done_leader WHERE vk_id=%s", user_id)
+        await conn.commit()
+        if cur.rowcount > 0:
+            return True
+        else:
+            await cur.execute("SELECT * FROM form_done_adm WHERE vk_id=%s", user_id)
+            await conn.commit()
+            if cur.rowcount > 0:
+                return True
+            else:
+                return False
+
+
+# async def is_find_formaccess(user_id):
+#     async with conn.cursor() as cur:
+#         await cur.execute("SELECT * FROM formaccess WHERE vk_id=%s", user_id)
+#         await conn.commit()
+#         if cur.rowcount > 0:
+#             return True
+#         else:
+#             return False
 
 # Сеттеры и удаление
 
 
 async def set_test_info(adm_name, test_text):
     async with conn.cursor() as cur:
-        await cur.execute("INSERT INTO `test_report`(`adm_name`, `test_text`, `date`) VALUES (%s, %s, CURRENT_DATE())", (adm_name, test_text,))
+        await cur.execute("INSERT INTO `test_report`(`adm_name`, `test_text`, `date`) VALUES (%s, %s, CURRENT_DATE())",
+                          (adm_name, test_text,))
         await conn.commit()
     return True
 
 
 async def set_formaccess(uid, adm_id, adm_name, type_form):
     async with conn.cursor() as cur:
-        await cur.execute("INSERT INTO `formaccess`(`vk_id`, `type_form`, `vk_id_adm`, `name_adm`, `is_check`) VALUES (%s, %s, %s, %s, 0)", (uid, type_form, adm_id, adm_name))
+        await cur.execute(
+            "INSERT INTO `formaccess`(`vk_id`, `type_form`, `vk_id_adm`, `name_adm`, `is_check`) VALUES (%s, %s, %s, %s, 0)",
+            (uid, type_form, adm_id, adm_name))
         await conn.commit()
     return True
+
+
+async def set_leader(user_id):
+    try:
+        async with conn.cursor() as cur:  # Добыча информации из form_done_leader
+            await cur.execute("SELECT * FROM form_done_leader WHERE vk_id=%s", user_id)
+            await conn.commit()
+            form_leader_info = await cur.fetchone()
+        async with conn.cursor() as cur:  # Занесение лидера в общую талицу leaders
+            await cur.execute(
+                "INSERT INTO `leaders`(`vk_id`, `server_name`, `org`, `status`, `vigs`, `warns`, `start_date`, `end_date`, `score`, `age_reallife`, `forumprofile`, `discord`) VALUES (%s, %s, %s, %s, 0, 0, CURRENT_DATE(), CURRENT_DATE(), 0, %s, %s, %s)",
+                (form_leader_info[1],
+                 form_leader_info[3],
+                 form_leader_info[5],
+                 form_leader_info[4],
+                 form_leader_info[2],
+                 form_leader_info[6],
+                 form_leader_info[7]))
+            await conn.commit()
+        is_remove = await remove_formaccess_done_leader(user_id)  # Удаление лидера из formaccess и form_done_leader
+        return True
+    except:
+        return False
+
+
+async def set_admin(user_id):
+    try:
+        async with conn.cursor() as cur:  # Добыча информации из form_done_adm
+            await cur.execute("SELECT * FROM form_done_adm WHERE vk_id=%s", user_id)
+            await conn.commit()
+            form_adm_info = await cur.fetchone()
+        async with conn.cursor() as cur:  # Занесение админа в общую таблицу admins
+            await cur.execute("INSERT INTO `admins`(`vk_id`, `server_name`, `age`, `prefix`, `post`, `dostup`, `adm_lvl`, `start_date`, `adm_days`, `score`, `forumprofile`, `discord`) VALUES (%s, %s, %s, %s, %s, %s, %s, CURRENT_DATE(), 0, 0, %s, %s)",
+                (form_adm_info[1],
+                 form_adm_info[3],
+                 form_adm_info[2],
+                 form_adm_info[12],
+                 form_adm_info[4],
+                 form_adm_info[11],
+                 form_adm_info[13],
+                 form_adm_info[6],
+                 form_adm_info[7]))
+            await conn.commit()
+        is_remove = await remove_formaccess_done_admin(user_id)  # Удаление админа из formaccess и form_done_adm
+        return True
+    except Exception as er:
+        print(er)
+        return False
 
 
 async def remove_formaccess(user_id):
@@ -238,9 +329,9 @@ async def remove_formaccess(user_id):
         await cur.execute("DELETE FROM `formaccess` WHERE vk_id=%s", user_id)
         await conn.commit()
         if cur.rowcount > 0:
-            return True         # Если форма найдена, то она удаляется и возвращается True
+            return True  # Если форма найдена, то она удаляется и возвращается True
         else:
-            return False        # Если форма не найдена возвращается False
+            return False  # Если форма не найдена возвращается False
 
 
 async def remove_formaccess_done_leader(user_id):
@@ -252,6 +343,7 @@ async def remove_formaccess_done_leader(user_id):
             return True
         else:
             return False
+
 
 async def remove_formaccess_done_admin(user_id):
     await remove_formaccess(user_id)

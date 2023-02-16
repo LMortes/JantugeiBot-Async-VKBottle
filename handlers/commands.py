@@ -1,17 +1,11 @@
-import datetime
 import re
-import asyncio
-import textwrap
-
 from vkbottle import GroupTypes, GroupEventType, Keyboard, Callback, KeyboardButtonColor
 from vkbottle.bot import Message
 from vkbottle.framework.labeler import BotLabeler
 from check_dostup_rule import CheckUserDostup
 from db_connect import *
-from settings import bot, USER_BOT_ID
+from settings import bot
 from user_bot_functions import *
-import time
-import pprint
 
 bl = BotLabeler()
 
@@ -149,8 +143,28 @@ async def cmd_ao(message: Message, ping=None):
 # Команды для 4 уровня доступа и выше
 
 
-@bl.message(CheckUserDostup([4, 5, 6, 7, 8, 9, 10, 11]),
-            text=['/formaccess', '/formaccess <screen_name> <type_form:int>'])
+
+# @bl.message(CheckUserDostup([4, 5, 6, 7, 8, 9, 10, 11]), text=['/formremove', '/formremove <screen_name>'])
+# async def cmd_formremove(message: Message, screen_name=None):
+#     if screen_name is not None:
+#         # Добыча id пользователя из упоминания
+#         try:
+#             uid = re.findall(r'[0-9]+', screen_name)[0]
+#         except:
+#             await message.answer('⚠ Упоминание введено некорректно или такого пользователя не существует')
+#         is_find_form_done = await is_find_current_form_done(uid)
+#         if not is_find_form_done:
+#             is_find_formaccess = await is_find_formaccess(uid)
+#         else:
+#             message_find_form_done = 'Данный пользователь находится на стадии одобрения, то есть он уже заполнил форму. В случае если это не так, обратитесь к руководству Jantugei Inc.'
+#             await message.answer(message_find_form_done)
+#     else:
+#         syntax_message = '⚠ Используйте следующий синтаксис: /formremove [@Упоминание]'
+#         await message.answer(syntax_message)
+
+
+
+@bl.message(CheckUserDostup([4, 5, 6, 7, 8, 9, 10, 11]), text=['/formaccess', '/formaccess <screen_name> <type_form:int>'])
 async def cmd_formaccess(message: Message, screen_name=None, type_form: int = None):
     user_dostup = await get_user_dostup(message.from_id)
     if screen_name is not None:
@@ -178,7 +192,8 @@ async def cmd_formaccess(message: Message, screen_name=None, type_form: int = No
             # Проверки если данный пользователь админ или лидер или он уже есть в формах бд
             status_code_formaccess = await check_user_in_formaccess(uid)
             if status_code_formaccess == 0:
-                await message.answer('⚠ При проверке пользователя на наличие в базе данных произошла неизвестная ошибка')
+                await message.answer(
+                    '⚠ При проверке пользователя на наличие в базе данных произошла неизвестная ошибка')
                 return
             elif status_code_formaccess == 11:
                 await message.answer(
@@ -349,6 +364,8 @@ async def polling_form_done(message: Message):
                 )
                 for row in forms_info_adm:  # Формирование сообщения в конфу
                     new_form_admin_message += f'👤 Игровой ник администратора: [id{row[1]}|{row[3]}][D:{row[11]}]\n' \
+                                              f'Префикс: {row[12]}\n' \
+                                              f'Уровень администратора: {row[13]}\n' \
                                               f'🔢 Возраст: {row[2]}\n' \
                                               f'👥 Должность: {row[4]}\n' \
                                               f'💻 Discord: {row[7]}\n' \
@@ -384,7 +401,8 @@ async def polling_form_done(message: Message):
                                                 random_id=0, keyboard=keyboard)
                     new_form_leader_message = '🆕 Поступила новая форма на лидера/заместителя 🆕\n'  # Обновление строки
             elif is_form_done == 3:
-                await message.answer('⚠ Найдена форма на лидера и на администратора')  # Если есть форма на лидера и на админа
+                await message.answer(
+                    '⚠ Найдена форма на лидера и на администратора')  # Если есть форма на лидера и на админа
                 forms_info_leader = await get_info_form_leader()  # Добыча информации из таблицы с формой лидера
                 forms_info_adm = await get_info_form_adm()  # Дописать распределение по беседам в зависимости от доступа!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 new_form_leader_message = '🆕 Поступила новая форма на лидера/заместителя 🆕\n\n'
@@ -410,6 +428,8 @@ async def polling_form_done(message: Message):
                                                f'📅 Дата выдачи формы: {row[10]}'
                 for row in forms_info_adm:  # Формирование сообщения в конфу
                     new_form_admin_message += f'👤 Игровой ник администратора: [id{row[1]}|{row[3]}][D:{row[11]}]\n' \
+                                              f'Префикс: {row[12]}\n' \
+                                              f'Уровень администратора: {row[13]}\n' \
                                               f'🔢 Возраст: {row[2]}\n' \
                                               f'👥 Должность: {row[4]}\n' \
                                               f'💻 Discord: {row[7]}\n' \
@@ -426,9 +446,9 @@ async def polling_form_done(message: Message):
                     new_form_leader_message = '🆕 Поступила новая форма на лидера/заместителя 🆕\n'  # Обновление строки лидерской формы
                     new_form_admin_message = '🆕 Поступила новая форма на администратора 🆕\n'  # Обновление строки админской формы
 
-            else:
-                await message.answer('✅ Ничего не найдено')  # Убрать, когда будет полностью рабочая система
-            await asyncio.sleep(60)  # Задержка поллинга таблицы с формами
+            # else:
+            #     await message.answer('✅ Ничего не найдено')  # Убрать, когда будет полностью рабочая система
+            await asyncio.sleep(180)  # Задержка поллинга таблицы с формами
     except:
         await message.answer('⚠ По неизвестной причине поллинг базы данных прекращен')
         print('⚠ По неизвестной причине поллинг базы данных прекращен')
@@ -436,46 +456,80 @@ async def polling_form_done(message: Message):
 
 @bl.raw_event(GroupEventType.MESSAGE_EVENT, dataclass=GroupTypes.MessageEvent)
 async def click_button_form(event: GroupTypes.MessageEvent):
-    dostup = await get_user_dostup(event.object.user_id)
-    message_info = await bot.api.messages.get_by_conversation_message_id(peer_id=event.object.peer_id,
-                                                                         conversation_message_ids=event.object.conversation_message_id)
-    pre_user_id = re.findall(r'\[id[0-9]+', str(message_info))[0]
-    user_id = re.findall(r'[0-9]+', pre_user_id)[0]
-    if dostup >= 4:
-        adm_id = event.object.user_id
-        adm_name = await get_user_name(adm_id)
-        user_name = await get_user_name(user_id)
-        is_remove = ''
-        message_decline = f'[id{event.object.user_id}|{adm_name}] отказал форму'
-        message_accept = f'[id{event.object.user_id}|{adm_name}] одобрил форму'
-        message_remove_form = '✅ Форма успешно удалена из базы данных. Все доступы к заполнению формы сняты.'
-        message_remove_form_error = '⚠ Произошла ошибка при удалении формы из базы данных или форма была удалена ранее.'
-        message_for_user = '✅ Отправка в личные сообщения успешна'
-        message_for_user_error = '⚠ Произошла ошибка при отправке в личные сообшения.'
-        if event.object.payload["cmd"] == "accept_leader_form":
-            await bot.api.messages.send(peer_id=event.object.peer_id, message='✅ Кнопка Одобрить работает', random_id=0)
-            # Дописать одобрение формы лидера
-
-        elif (event.object.payload["cmd"] == "decline_leader_form") or \
-                (event.object.payload["cmd"] == "decline_admin_form"):
-            await bot.api.messages.send(peer_id=event.object.peer_id, message=message_decline, random_id=0)
-            if event.object.payload["cmd"] == "decline_leader_form":
-                is_remove = await remove_formaccess_done_leader(user_id)
-            elif event.object.payload["cmd"] == "decline_admin_form":
-                is_remove = await remove_formaccess_done_admin(user_id)
-            if is_remove:
-                await bot.api.messages.send(peer_id=event.object.peer_id, message=message_remove_form, random_id=0)
-                is_send_user_message = await send_user_message_formdecline(user_id, adm_id, adm_name)
-                if is_send_user_message:
-                    await bot.api.messages.send(peer_id=event.object.peer_id, message=message_for_user, random_id=0)
-                else:
-                    await bot.api.messages.send(peer_id=event.object.peer_id, message=message_for_user_error,
-                                                random_id=0)
-            else:
-                await bot.api.messages.send(peer_id=event.object.peer_id, message=message_remove_form_error,
-                                            random_id=0)
-
-        elif event.object.payload["cmd"] == "accept_admin_form":
-            await bot.api.messages.send(peer_id=event.object.peer_id,
-                                        message='✅ Кнопка Одобрить для формы администратора работает', random_id=0)
-            # Дописать одобрение формы админа
+    try:
+        dostup = await get_user_dostup(event.object.user_id)
+        # Добыча id юзера из сообщения формы
+        message_info = await bot.api.messages.get_by_conversation_message_id(peer_id=event.object.peer_id,
+                                                                             conversation_message_ids=event.object.conversation_message_id)
+        pre_user_id = re.findall(r'\[id[0-9]+', str(message_info))[0]
+        user_id = re.findall(r'[0-9]+', pre_user_id)[0]
+        is_find_form_done = await is_find_current_form_done(user_id)
+        if dostup >= 4:
+            # Проверка, действительна ли в данный момент эта форма
+            if is_find_form_done:
+                # Добыча имени юзера по id
+                user_info = await get_current_info_form_done(user_id)
+                user_name = user_info[3]
+                # Добыча id и name админа выдавшего форму
+                adm_id = event.object.user_id
+                adm_name = await get_user_name(adm_id)
+                # Сообщения статусов
+                is_remove = ''
+                message_decline = f'[id{event.object.user_id}|{adm_name}] отказал форму [id{user_id}|{user_name}]'
+                message_accept = f'[id{event.object.user_id}|{adm_name}] одобрил форму [id{user_id}|{user_name}]'
+                message_set = f'[id{user_id}|{user_name}] успешно добавлен в базу данных. Все доступы для заполнения форм сняты.'
+                message_set_error = f'Произошла ошибка при добавлении [id{user_id}|{user_name}] в базу данных!'
+                message_remove_form = '✅ Форма успешно удалена из базы данных. Все доступы к заполнению формы сняты.'
+                message_remove_form_error = '⚠ Произошла ошибка при удалении формы из базы данных или форма была удалена ранее.'
+                message_for_user = '✅ Отправка в личные сообщения успешна'
+                message_for_user_error = '⚠ Произошла ошибка при отправке в личные сообшения.'
+                # После нажатия на кнопку одобрить для лидерской формы
+                if event.object.payload["cmd"] == "accept_leader_form":  # Дописать добавление ролей в дискорде и добавлене в беседы
+                    await bot.api.messages.send(peer_id=event.object.peer_id, message=message_accept, random_id=0)
+                    is_set_leader = await set_leader(user_id)
+                    if is_set_leader:
+                        await bot.api.messages.send(peer_id=event.object.peer_id, message=message_set, random_id=0)
+                        is_send_user_message_accept = await send_user_message_formaccept(user_id, user_name, adm_id, adm_name)
+                        if is_send_user_message_accept:
+                            await bot.api.messages.send(peer_id=event.object.peer_id, message=message_for_user, random_id=0)
+                        else:
+                            await bot.api.messages.send(peer_id=event.object.peer_id, message=message_for_user_error,
+                                                        random_id=0)
+                    else:
+                        await bot.api.messages.send(peer_id=event.object.peer_id, message=message_set_error, random_id=0)
+                # После нажатия на кнопку отклонить на лидерской и админской форме
+                elif (event.object.payload["cmd"] == "decline_leader_form") or \
+                        (event.object.payload["cmd"] == "decline_admin_form"):
+                    await bot.api.messages.send(peer_id=event.object.peer_id, message=message_decline, random_id=0)
+                    if event.object.payload["cmd"] == "decline_leader_form":
+                        is_remove = await remove_formaccess_done_leader(user_id)
+                    elif event.object.payload["cmd"] == "decline_admin_form":
+                        is_remove = await remove_formaccess_done_admin(user_id)
+                    if is_remove:
+                        await bot.api.messages.send(peer_id=event.object.peer_id, message=message_remove_form, random_id=0)
+                        is_send_user_message = await send_user_message_formdecline(user_id, adm_id, adm_name)
+                        if is_send_user_message:
+                            await bot.api.messages.send(peer_id=event.object.peer_id, message=message_for_user, random_id=0)
+                        else:
+                            await bot.api.messages.send(peer_id=event.object.peer_id, message=message_for_user_error,
+                                                        random_id=0)
+                    else:
+                        await bot.api.messages.send(peer_id=event.object.peer_id, message=message_remove_form_error,
+                                                    random_id=0)
+                # После нажатия на кнопку одобрить на админской форме
+                elif event.object.payload["cmd"] == "accept_admin_form":
+                    await bot.api.messages.send(peer_id=event.object.peer_id,
+                                                message=message_accept, random_id=0)
+                    is_set_admin = await set_admin(user_id)
+                    if is_set_admin:
+                        await bot.api.messages.send(peer_id=event.object.peer_id, message=message_set, random_id=0)
+                        is_send_user_message_accept = await send_user_message_formaccept(user_id, user_name, adm_id, adm_name)
+                        if is_send_user_message_accept:
+                            await bot.api.messages.send(peer_id=event.object.peer_id, message=message_for_user, random_id=0)
+                        else:
+                            await bot.api.messages.send(peer_id=event.object.peer_id, message=message_for_user_error,
+                                                        random_id=0)
+                    else:
+                        await bot.api.messages.send(peer_id=event.object.peer_id, message=message_set_error, random_id=0)
+    except Exception as er:
+        print(er)

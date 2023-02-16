@@ -19,6 +19,7 @@ async def check_friends_and_add(user_id):
                 return True
     return False
 
+
 async def get_user_fullname_user_bot(user_id):
     user_info = await api.users.get(user_id)
     user_first_name = user_info[0].first_name
@@ -36,9 +37,22 @@ async def send_form_message(user_id, message):
 
 
 async def send_user_message_formdecline(user_id, adm_id, adm_name):
-    message =   '😢 У вашего VK был изъят доступ к заполнению формы\n'\
-                f'администратором [id{adm_id}|{adm_name}], по всем вопросам писать ему!\n\n'\
-                '© By Jantugei Inc.'
+    message = '😢 У вашего VK был изъят доступ к заполнению формы\n' \
+              f'администратором [id{adm_id}|{adm_name}], по всем вопросам писать ему!\n\n' \
+              '© By Jantugei Inc.'
+    try:
+        send_message = await api.messages.send(peer_id=user_id, message=message, random_id=0)
+    except:
+        return False
+    return True
+
+
+async def send_user_message_formaccept(user_id, user_name, adm_id, adm_name):
+    message = f'🥳 Поздравляю тебя [id{user_id}|{user_name}].\n\n' \
+              f'📝 Твоя заявка была одобрена администратором - [id{adm_id}|{adm_name}].\n' \
+              '💬 Мы добавили тебя во все нужные конференции, выдали все роли в дискорде и выдали все нужные тебе доступы.\n' \
+              '🥺 Удачи тебе на посту!\n\n' \
+              '© By Flxrencia Inc.'
     try:
         send_message = await api.messages.send(peer_id=user_id, message=message, random_id=0)
     except:
