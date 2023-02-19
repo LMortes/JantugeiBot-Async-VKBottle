@@ -1,10 +1,8 @@
 import db_connect
 from loguru import logger
 from handlers import labelers
+from settings import bot
 import asyncio
-from settings import bot, labeler
-global conn
-
 
 logger.disable("vkbottle")
 bot.labeler.vbml_ignore_case = True

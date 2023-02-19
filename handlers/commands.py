@@ -7,14 +7,15 @@ from check_dostup_rule import CheckUserDostup
 from db_connect import *
 from settings import bot
 from user_bot_functions import *
-
+from message_constructor import *
+from vkbottle.dispatch.rules.base import VBMLRule
 bl = BotLabeler()
 
 
 # Команда для всех
 
 
-@bl.message(text='/status')
+@bl.message(VBMLRule('/status'))
 async def cmd_status(message: Message):
     status = '⚙ Все системы работают в штатном режиме.\n' \
              '♻ Текущая версия бота - 0.1'
@@ -24,7 +25,7 @@ async def cmd_status(message: Message):
 # Команды для 0 уровня доступа(лидер/зам) и выше
 
 
-@bl.message(CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]), text='/help')
+@bl.message(VBMLRule('/help'), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def hi_handler(message: Message):
     dostup = await get_user_dostup(message.from_id)
     info = ''
@@ -117,18 +118,19 @@ async def hi_handler(message: Message):
         await message.answer(info)
 
 
-@bl.chat_message(CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]), text='/peer_id')
+@bl.message(VBMLRule('/dostup'), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
+async def cmd_dostup(message: Message):
+    await message.answer(f'🔢 Ваш уровень доступа: {await get_user_dostup(message.from_id)}')
+
+
+@bl.chat_message(VBMLRule('/peer_id'), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_peer_id(message: Message):
     result_id = '💬 ID Беседы: ' + str(message.peer_id) + ' 💬'
     await message.answer(result_id)
 
 
-@bl.message(CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]), text='/dostup')
-async def cmd_dostup(message: Message):
-    await message.answer(f'🔢 Ваш уровень доступа: {await get_user_dostup(message.from_id)}')
 
-
-@bl.message(CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]), text=['/ao', '/ao <ping>'])
+@bl.message(VBMLRule(['/ao', '/ao <ping>']), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_ao(message: Message, ping=None):
     if ping is not None:
         try:
@@ -140,64 +142,60 @@ async def cmd_ao(message: Message, ping=None):
     else:
         await message.answer('⚙ Используйте следующий синтаксис: /ao [@Упоминание]')
 
-@bl.message(CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]), text=['/info', '/info <screen_name>'])
+@bl.message(VBMLRule(['/info', '/info <screen_name>']), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_info(message: Message, screen_name=None):
     dostup = await get_user_dostup(message.from_id)
-    # try:
-    #     uid = re.findall(r'[0-9]+', screen_name)[0]
-    # except:
-    #     await message.answer('⚠ Упоминание введено некорректно или такого пользователя не существует')
     if screen_name is not None: # Дописать info с параметрами
-        pass
+        try:
+            uid = re.findall(r'[0-9]+', screen_name)[0]
+            leader_info = await get_info_leader(uid)
+            admin_info = await get_admin_info(uid)
+            if leader_info["status"]:
+                message_info_leader = await construct_message_info_leader(leader_info)
+                await message.answer(message_info_leader)
+            elif admin_info["status"]:
+                message_info_admin = await construct_message_info_admin(admin_info)
+                await message.answer(message_info_admin)
+            else:
+                await message.answer('Данный пользователь не найден в базе данных')
+                pass # Тут будет добыча из архива с доступом
+        except:
+            try:
+                nickname = re.findall(r'\w+_\w+', screen_name)[0]
+                leader_info = await get_info_leader_by_name(nickname)
+                admin_info = await get_admin_info_by_name(nickname)
+                if leader_info["status"]:
+                    message_info_leader = await construct_message_info_leader(leader_info)
+                    await message.answer(message_info_leader)
+                elif admin_info["status"]:
+                    message_info_admin = await construct_message_info_admin(admin_info)
+                    await message.answer(message_info_admin)
+                else:
+                    await message.answer('Данный пользователь не найден в базе данных')
+                    pass # Тут будет добыча из архива с доступом
+            except:
+                if screen_name.startswith('@'):
+                    await message.answer('⚠ Упоминание введено некорректно')
+                else:
+                    await message.answer('⚠ Используйте следующий синтаксис: /info Nick_Name или /info [@Упоминание]')
     else:
         if dostup == 0:
             leader_info = await get_info_leader(message.from_id)
 
             if leader_info["status"]:
-                days_on_post = datetime.date.today() - leader_info["leader_info"][7]
-                days_remove = leader_info["leader_info"][8] - datetime.date.today()
-                message_info = f'🗂 Основая информация о пользователе:\n'\
-                                f'👤 Ник пользователя: [id{leader_info["leader_info"][1]}|{leader_info["leader_info"][2]}]\n'\
-                                f'👥 Должность: {leader_info["leader_info"][4]}\n'\
-                                f'🗺 Сервер: -\n'\
-                                f'📅 Дата назначения: {leader_info["leader_info"][7]}\n'\
-                                f'📅 Дата снятия: {leader_info["leader_info"][8]}\n'\
-                                f'📅 Дней на посту: {days_on_post.days}\n'\
-                                f'📅 Дней до снятия: {days_remove.days}\n'\
-                                f'🖥 Discord: {leader_info["leader_info"][13]}\n\n'\
-                                f'🧾 Наказания и баллы:\n'\
-                                f'⛔ Выговоры: {leader_info["leader_info"][5]}\n'\
-                                f'⚠ Предупреждения: {leader_info["leader_info"][6]}\n'\
-                                f'🪙 Баллы: {leader_info["leader_info"][10]}\n\n'\
-                                f'⏰ Онлайн:\n'\
-                                f'⏲ 🔜 В разработке'
-                await message.answer(message_info)
+                message_info_leader = await construct_message_info_leader(leader_info)
+                await message.answer(message_info_leader)
         else:
             admin_info = await get_admin_info(message.from_id)
             if admin_info["status"]:
-                days_on_post = datetime.date.today() - admin_info["admin_info"][8]
-                message_info = '🗂 Основная информация о администраторе:\n'\
-                                f'👤 Ник администратора: [id{admin_info["admin_info"][1]}|{admin_info["admin_info"][2]}][{admin_info["admin_info"][4]}]\n'\
-                                f'🔢 Уровень администратора: {admin_info["admin_info"][7]}\n'\
-                                f'👥 Уровень доступа: [D:{admin_info["admin_info"][6]}]\n'\
-                                f'👥 Должность: {admin_info["admin_info"][5]}\n'\
-                                f'🗺 Сервер: - \n'\
-                                f'📅 Дата назначения: {admin_info["admin_info"][8]}\n'\
-                                f'📅 Дней на посту: {days_on_post.days}\n'\
-                                f'🖥 Discord: {admin_info["admin_info"][12]}\n\n'\
-                                f'🧾 Наказание и баллы:\n'\
-                                f'⛔ Выговоры: {admin_info["admin_info"][13]}\n'\
-                                f'⚠ Предупреждения: {admin_info["admin_info"][14]}\n'\
-                                f'🪙 Баллы: {admin_info["admin_info"][10]}\n\n'\
-                                f'🧾 Онлайн:\n'\
-                                f'⏲ 🔜 В разработке'
-                await message.answer(message_info)
+                message_info_admin = await construct_message_info_admin(admin_info)
+                await message.answer(message_info_admin)
 
 # Команды для 4 уровня доступа и выше
 
 
 
-@bl.message(CheckUserDostup([4, 5, 6, 7, 8, 9, 10, 11]), text=['/formremove', '/formremove <screen_name>'])
+@bl.message(VBMLRule(['/formremove', '/formremove <screen_name>']), CheckUserDostup([4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_formremove(message: Message, screen_name=None):
     if screen_name is not None:
         # Добыча id пользователя из упоминания
@@ -228,7 +226,7 @@ async def cmd_formremove(message: Message, screen_name=None):
 
 
 
-@bl.message(CheckUserDostup([4, 5, 6, 7, 8, 9, 10, 11]), text=['/formaccess', '/formaccess <screen_name> <type_form:int>'])
+@bl.message(VBMLRule(['/formaccess', '/formaccess <screen_name> <type_form:int>']), CheckUserDostup([4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_formaccess(message: Message, screen_name=None, type_form: int = None):
     user_dostup = await get_user_dostup(message.from_id)
     if screen_name is not None:
@@ -364,7 +362,7 @@ async def cmd_formaccess(message: Message, screen_name=None, type_form: int = No
 
 # Команды для 11 уровня доступа
 
-@bl.message(CheckUserDostup(11), text=['/test', '/test <text>'])
+@bl.message(VBMLRule(['/test', '/test <text>']), CheckUserDostup(11))
 async def cmd_test(message: Message, text=None):
     if text is not None:
         adm_name = await get_user_name(message.from_id)
@@ -378,13 +376,13 @@ async def cmd_test(message: Message, text=None):
         await message.answer('⚙ Используй следующий синтаксис: /test [суть теста]')
 
 
-@bl.message(CheckUserDostup(11), text='/testlist')
+@bl.message(VBMLRule('/testlist'), CheckUserDostup(11))
 async def cmd_testlist(message: Message):
     testlist_text = await get_testlist()
     await message.answer(testlist_text)
 
 
-@bl.message(CheckUserDostup(11), text=['/bug', '/bug <id:int>', '/bug <id:int> <text>'])
+@bl.message(VBMLRule(['/bug', '/bug <id:int>', '/bug <id:int> <text>']), CheckUserDostup(11))
 async def cmd_bug(message: Message, id: int = None, text=None):
     if id is not None:
         if text is not None:
@@ -397,13 +395,13 @@ async def cmd_bug(message: Message, id: int = None, text=None):
         await message.answer('Введите id тест репорта.')
 
 
-@bl.message(CheckUserDostup(11), text='/buglist')
+@bl.message(VBMLRule('/buglist'), CheckUserDostup(11))
 async def cmd_buglist(message: Message):
     buglist_text = await get_buglist()
     await message.answer(buglist_text)
 
 
-@bl.message(CheckUserDostup(11), text=['/fixbug', '/fixbug <id:int>'])
+@bl.message(VBMLRule(['/fixbug', '/fixbug <id:int>']), CheckUserDostup(11))
 async def cmd_fixbug(message: Message, id: int = None):
     if id is not None:
         msg = await for_cmd_fixbug(id)
@@ -412,7 +410,7 @@ async def cmd_fixbug(message: Message, id: int = None):
         await message.answer('Введите id баг репорта.')
 
 
-@bl.message(CheckUserDostup(11), text='/formpolling')
+@bl.message(VBMLRule('/formpolling'), CheckUserDostup(11))
 async def polling_form_done(message: Message):
     await message.answer('🌐 Функция поллинга базы данных запущена 🌐')
     try:
