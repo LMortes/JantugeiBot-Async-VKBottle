@@ -157,7 +157,7 @@ async def cmd_info(message: Message, screen_name=None):
                 message_info_admin = await construct_message_info_admin(admin_info)
                 await message.answer(message_info_admin)
             else:
-                await message.answer('Данный пользователь не найден в базе данных')
+                await message.answer('⚠ Данный пользователь не найден в базе данных')
                 pass # Тут будет добыча из архива с доступом
         except:
             try:
@@ -171,7 +171,7 @@ async def cmd_info(message: Message, screen_name=None):
                     message_info_admin = await construct_message_info_admin(admin_info)
                     await message.answer(message_info_admin)
                 else:
-                    await message.answer('Данный пользователь не найден в базе данных')
+                    await message.answer('⚠ Данный пользователь не найден в базе данных')
                     pass # Тут будет добыча из архива с доступом
             except:
                 if screen_name.startswith('@'):
@@ -194,32 +194,32 @@ async def cmd_info(message: Message, screen_name=None):
 
 @bl.message(VBMLRule('/members'), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_members(message: Message):
-    await message.answer('Данная команда находится на этапе разработки')
+    await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
 @bl.message(VBMLRule('/warnhistory'), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_members(message: Message):
-    await message.answer('Данная команда находится на этапе разработки')
+    await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
 @bl.message(VBMLRule('/scorehistory'), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_members(message: Message):
-    await message.answer('Данная команда находится на этапе разработки')
+    await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
 @bl.message(VBMLRule('/dayshistory'), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_members(message: Message):
-    await message.answer('Данная команда находится на этапе разработки')
+    await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
 @bl.message(VBMLRule('/getip'), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_members(message: Message):
-    await message.answer('Данная команда находится на этапе разработки')
+    await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
 @bl.message(VBMLRule('/fonline'), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_members(message: Message):
-    await message.answer('Данная команда находится на этапе разработки')
+    await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
 
@@ -227,7 +227,7 @@ async def cmd_members(message: Message):
 
 @bl.message(VBMLRule('/online'), CheckUserDostup([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_members(message: Message):
-    await message.answer('Данная команда находится на этапе разработки')
+    await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
 @bl.message(VBMLRule(['/checkblacklist', '/checkblacklist <nickname>']), CheckUserDostup([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
@@ -243,7 +243,7 @@ async def cmd_members(message: Message, nickname=None):
             message_player_info_black = await construct_message_info_blacklist(player_info_black)
             await message.answer(message_player_info_black)
         else:
-            await message.answer('Данный пользователь не находится в черном списке.')
+            await message.answer('⚠ Данный пользователь не находится в черном списке.')
     else:
         await message.answer('⚠ Используйте следующий синтаксис: /checkblacklist Nick_Name')
 
@@ -253,12 +253,12 @@ async def cmd_members(message: Message, nickname=None):
 
 @bl.message(VBMLRule('/clrbuttons'), CheckUserDostup([3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_members(message: Message):
-    await message.answer('Данная команда находится на этапе разработки')
+    await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
 @bl.message(VBMLRule('/checknick'), CheckUserDostup([3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_members(message: Message):
-    await message.answer('Данная команда находится на этапе разработки')
+    await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
 @bl.message(VBMLRule('/formslist'), CheckUserDostup([3, 4, 5, 6, 7, 8, 9, 10, 11]))
@@ -269,14 +269,14 @@ async def cmd_members(message: Message):
             message_info_formaccess = await construct_message_info_formaccess(forms_info)
             await message.answer(message_info_formaccess)
         except Exception as er:
-            print('Ошибка в команде /formslist. Текст ошибки: ', er)
+            print('⚠ Ошибка в команде /formslist. Текст ошибки: ', er)
     else:
-        await message.answer('На данный момент нет пользователей с доступом к форме')
+        await message.answer('♻ На данный момент нет пользователей с доступом к форме')
 
 
 @bl.message(VBMLRule('/getdsid'), CheckUserDostup([3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_members(message: Message):
-    await message.answer('Данная команда находится на этапе разработки')
+    await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
 # Команды для 4 уровня доступа и выше
