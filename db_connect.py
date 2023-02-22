@@ -371,6 +371,42 @@ async def get_info_formaccess():
                 }
         return info_formaccess
 
+
+async def get_dayshistory_info_by_id(user_id):
+    async with await connection(loop) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute("SELECT * FROM dayshistory WHERE vk_id=%s", user_id)
+            if cur.rowcount > 0:
+                rows_info_dayshistory = await cur.fetchall()
+                info_dayshistory = {
+                    "info_dayshistory": rows_info_dayshistory,
+                    "status": True,
+                }
+            else:
+                info_dayshistory = {
+                    "info_dayshistory": [],
+                    "status": False,
+                }
+        return info_dayshistory
+
+
+async def get_dayshistory_info_by_nickname(name):
+    async with await connection(loop) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute("SELECT * FROM dayshistory WHERE server_name=%s", name)
+            if cur.rowcount > 0:
+                rows_info_dayshistory = await cur.fetchall()
+                info_dayshistory = {
+                    "info_dayshistory": rows_info_dayshistory,
+                    "status": True,
+                }
+            else:
+                info_dayshistory = {
+                    "info_dayshistory": [],
+                    "status": False,
+                }
+        return info_dayshistory
+
 # Сеттеры и удаление
 
 

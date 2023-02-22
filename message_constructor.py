@@ -83,3 +83,29 @@ async def construct_message_ip_information(response_ip):
                  f'Часовой пояс: {response_ip["response_ip"]["timezone"]}\n' \
                  f'Провайдер: {response_ip["response_ip"]["isp"]}'
     return message_ip
+
+
+async def construct_message_dayshistory(info_dayshistory, leader_info_dayshistory):
+    add_or_remove = ''
+    message_dayshistory = ''
+    message_info_dayshistory = ''
+    if leader_info_dayshistory:
+        days_on_post = leader_info_dayshistory["end_date"] - leader_info_dayshistory["start_date"]
+        message_info_dayshistory = f'История изменений дней к сроку - [id{leader_info_dayshistory["vk_id"]}|{leader_info_dayshistory["name"]}]\n'\
+                              f'Дата назначения: {leader_info_dayshistory["start_date"]}\n' \
+                              f'Дата снятия: {leader_info_dayshistory["end_date"]}\n' \
+                              f'Дней на посту: {days_on_post.days}\n\n'
+    for row in reversed(info_dayshistory["info_dayshistory"]):
+        if row[4] == 0:
+            add_or_remove = '-'
+        elif row[4] == 1:
+            add_or_remove = '+'
+        if row[3] == 1:
+            day = 'день'
+        elif (row[3] == 2) or (row[3] == 3) or (row[3] == 4):
+            day = 'дня'
+        else:
+            day = 'дней'
+        message_dayshistory += f'📜 {row[8]} [id{row[1]}|{row[2]}] было установлено {add_or_remove}{row[3]} {day} к окончанию срока от [id{row[6]}|{row[7]}]. Причина: {row[5]}\n'
+    result_message_dayshistory = message_info_dayshistory + message_dayshistory
+    return result_message_dayshistory

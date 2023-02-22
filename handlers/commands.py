@@ -1,4 +1,3 @@
-import datetime
 import re
 from vkbottle import GroupTypes, GroupEventType, Keyboard, Callback, KeyboardButtonColor
 from vkbottle.bot import Message
@@ -26,7 +25,7 @@ async def cmd_status(message: Message):
 
 
 @bl.message(VBMLRule('/help'), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
-async def hi_handler(message: Message):
+async def cmd_help(message: Message):
     dostup = await get_user_dostup(message.from_id)
     info = ''
     info2 = ''
@@ -198,22 +197,69 @@ async def cmd_members(message: Message):
 
 
 @bl.message(VBMLRule('/warnhistory'), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
-async def cmd_members(message: Message):
+async def cmd_warnhistory(message: Message):
     await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
 @bl.message(VBMLRule('/scorehistory'), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
-async def cmd_members(message: Message):
+async def cmd_scorehistory(message: Message):
     await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
-@bl.message(VBMLRule('/dayshistory'), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
-async def cmd_members(message: Message):
-    await message.answer('⚠ Данная команда находится на этапе разработки')
+@bl.message(VBMLRule(['/dayshistory', '/dayshistory <screen_name>']), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
+async def cmd_dayshistory(message: Message, screen_name=None):
+    if screen_name is not None:
+        screen_name_pat = re.compile("\[id[0-9]+")
+        nickname_pat = re.compile("\w+_\w+")
+        leader_info_dayshistory = {}
+        message_not_find = 'У пользователя с данным упоминанием/никнеймом не найдено записей изменений дней к сроку'
+        if re.match(screen_name_pat, screen_name):
+            uid = re.findall(r'[0-9]+', screen_name)[0]
+            info_dayshistory = await get_dayshistory_info_by_id(uid)
+            if info_dayshistory["status"]:
+                leader_info = await get_info_leader(uid)
+                if leader_info["status"]:
+                    leader_info_dayshistory = {
+                        "vk_id": leader_info["leader_info"][1],
+                        "name": leader_info["leader_info"][2],
+                        "start_date": leader_info["leader_info"][7],
+                        "end_date": leader_info["leader_info"][8]
+                    }
+                    message_info_dayshistory = await construct_message_dayshistory(info_dayshistory, leader_info_dayshistory)
+                else:
+                    await message.answer('Данный пользователь снят!') # Дописать добычу данных из архива и проверку на адм
+                    message_info_dayshistory = await construct_message_dayshistory(info_dayshistory, leader_info_dayshistory)
+                await message.answer(message_info_dayshistory)
+            else:
+                await message.answer(message_not_find)
+        elif re.match(nickname_pat, screen_name):
+            nickname = screen_name
+            info_dayshistory = await get_dayshistory_info_by_nickname(nickname)
+            if info_dayshistory["status"]:
+                leader_info = await get_info_leader_by_name(nickname)
+                if leader_info["status"]:
+                    leader_info_dayshistory = {
+                        "vk_id": leader_info["leader_info"][1],
+                        "name": leader_info["leader_info"][2],
+                        "start_date": leader_info["leader_info"][7],
+                        "end_date": leader_info["leader_info"][8]
+                    }
+                    message_info_dayshistory = await construct_message_dayshistory(info_dayshistory, leader_info_dayshistory)
+                else:
+                    await message.answer('Данный пользователь снят!')  # Дописать добычу данных из архива и проверку на адм
+                    message_info_dayshistory = await construct_message_dayshistory(info_dayshistory, leader_info_dayshistory)
+                await message.answer(message_info_dayshistory)
+            else:
+                await message.answer(message_not_find)
+        else:
+            await message.answer('Никнейм/упоминание введено некорректно. Формат: @Упоминание/Nick_Name')
+    else:
+        await message.answer('⚠ Используйте следующий синтаксис: /dayshistory [@Упоминание] или /dayshistory Nick_Name')
+
 
 
 @bl.message(VBMLRule(['/getip', '/getip <ip>']), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
-async def cmd_members(message: Message, ip=None):
+async def cmd_getip(message: Message, ip=None):
     if ip is not None:
         pat_ip = re.compile("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
         if re.match(pat_ip, ip):
@@ -230,7 +276,7 @@ async def cmd_members(message: Message, ip=None):
 
 
 @bl.message(VBMLRule('/fonline'), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
-async def cmd_members(message: Message):
+async def cmd_fonline(message: Message):
     await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
@@ -238,12 +284,12 @@ async def cmd_members(message: Message):
 # Команды для 1 уровня доступа и выше
 
 @bl.message(VBMLRule('/online'), CheckUserDostup([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
-async def cmd_members(message: Message):
+async def cmd_online(message: Message):
     await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
 @bl.message(VBMLRule(['/checkblacklist', '/checkblacklist <nickname>']), CheckUserDostup([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
-async def cmd_members(message: Message, nickname=None):
+async def cmd_checkblacklist(message: Message, nickname=None):
     if nickname is not None:
         try:
             nickname = re.findall(r'\w+_\w+', nickname)[0]
@@ -264,17 +310,17 @@ async def cmd_members(message: Message, nickname=None):
 
 
 @bl.message(VBMLRule('/clrbuttons'), CheckUserDostup([3, 4, 5, 6, 7, 8, 9, 10, 11]))
-async def cmd_members(message: Message):
+async def cmd_clrbuttons(message: Message):
     await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
 @bl.message(VBMLRule('/checknick'), CheckUserDostup([3, 4, 5, 6, 7, 8, 9, 10, 11]))
-async def cmd_members(message: Message):
+async def cmd_checknick(message: Message):
     await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
 @bl.message(VBMLRule('/formslist'), CheckUserDostup([3, 4, 5, 6, 7, 8, 9, 10, 11]))
-async def cmd_members(message: Message):
+async def cmd_formslist(message: Message):
     forms_info = await get_info_formaccess()
     if forms_info["status"]:
         try:
@@ -287,7 +333,7 @@ async def cmd_members(message: Message):
 
 
 @bl.message(VBMLRule('/getdsid'), CheckUserDostup([3, 4, 5, 6, 7, 8, 9, 10, 11]))
-async def cmd_members(message: Message):
+async def cmd_getdsid(message: Message):
     await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
