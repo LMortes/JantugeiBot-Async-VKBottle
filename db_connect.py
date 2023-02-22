@@ -334,6 +334,43 @@ async def is_find_current_form_done(user_id):
                 else:
                     return False
 
+
+async def get_info_blacklist_by_name(nickname):
+    async with await connection(loop) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute("SELECT * FROM blacklist WHERE server_name=%s", nickname)
+            await conn.commit()
+            if cur.rowcount > 0:
+                row_player_info = await cur.fetchone()
+                player_info_black = {
+                    "player_info": row_player_info,
+                    "status": True,
+                }
+            else:
+                player_info_black = {
+                    "player_info": [],
+                    "status": False,
+                }
+        return player_info_black
+
+
+async def get_info_formaccess():
+    async with await connection(loop) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute("SELECT * FROM formaccess")
+            if cur.rowcount > 0:
+                rows_info_formaccess = await cur.fetchall()
+                info_formaccess = {
+                    "info_formaccess": rows_info_formaccess,
+                    "status": True,
+                }
+            else:
+                info_formaccess = {
+                    "info_formaccess": [],
+                    "status": False
+                }
+        return info_formaccess
+
 # Сеттеры и удаление
 
 
