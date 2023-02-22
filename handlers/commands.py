@@ -5,7 +5,7 @@ from vkbottle.bot import Message
 from vkbottle.framework.labeler import BotLabeler
 from check_dostup_rule import CheckUserDostup
 from db_connect import *
-from settings import bot
+from request_functions import *
 from user_bot_functions import *
 from message_constructor import *
 from vkbottle.dispatch.rules.base import VBMLRule
@@ -42,7 +42,7 @@ async def hi_handler(message: Message):
                 '0️⃣/warnhistory - вывести историю выдачи или снятия наказаний у пользователя. \n' \
                 '0️⃣/scorehistory - вывести историю выдачи или снятия баллов у пользователя. \n' \
                 '0️⃣/dayshistory - вывести историю выдачи или снятия дней к сроку у пользователя. \n' \
-                '0️⃣/getip - вывести информацию о айпи адресе(ах). \n' \
+                '0️⃣/getip - вывести информацию о айпи адресе. \n' \
                 '0️⃣/fonline - вывести информацию о онлайне фракции.\n'
     if dostup >= 1:
         info += '1️⃣/online - посмотреть свой онлайн прямиком из логов. \n' \
@@ -212,9 +212,21 @@ async def cmd_members(message: Message):
     await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
-@bl.message(VBMLRule('/getip'), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
-async def cmd_members(message: Message):
-    await message.answer('⚠ Данная команда находится на этапе разработки')
+@bl.message(VBMLRule(['/getip', '/getip <ip>']), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
+async def cmd_members(message: Message, ip=None):
+    if ip is not None:
+        pat_ip = re.compile("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
+        if re.match(pat_ip, ip):
+            response_ip_information = await api_prikol_get_ip(ip)
+            if response_ip_information["status"]:
+                message_ip_infomation = await construct_message_ip_information(response_ip_information)
+                await message.answer(message_ip_infomation)
+            else:
+                await message.answer('Такого IP адреса не существует. Если это ошибка, обратитесь к руководству Jantugei Inc.')
+        else:
+            await message.answer('Неверный формат IP адреса или такого IP адреса не существует.')
+    else:
+        await message.answer('⚠ Используйте следующий синтаксис: /getip [ip] | Формат IP: x.x.x.x')
 
 
 @bl.message(VBMLRule('/fonline'), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))

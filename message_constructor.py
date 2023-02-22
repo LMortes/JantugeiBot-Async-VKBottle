@@ -73,3 +73,13 @@ async def construct_message_info_formaccess(forms_info):
         message_info_formaccess += f'{counter}. [id{row[1]}|{user_first_name} {user_last_name}] | Тип формы: {row[2]} | Адм. выдавший форму: [id{row[3]}|{row[4]}] | Состояние: {condition}\n'
         counter += 1
     return message_info_formaccess
+
+
+async def construct_message_ip_information(response_ip):
+    message_ip = 'Информация по запрошенному IP адресу:\n\n'\
+                 f'IP адрес: {response_ip["response_ip"]["ip"]}\n' \
+                 f'Страна: {response_ip["response_ip"]["country"]}\n' \
+                 f'Город: {response_ip["response_ip"]["city"]}\n' \
+                 f'Часовой пояс: {response_ip["response_ip"]["timezone"]}\n' \
+                 f'Провайдер: {response_ip["response_ip"]["isp"]}'
+    return message_ip
