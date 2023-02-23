@@ -212,7 +212,7 @@ async def cmd_dayshistory(message: Message, screen_name=None):
         screen_name_pat = re.compile("\[id[0-9]+")
         nickname_pat = re.compile("\w+_\w+")
         leader_info_dayshistory = {}
-        message_not_find = 'У пользователя с данным упоминанием/никнеймом не найдено записей изменений дней к сроку'
+        message_not_find = '⚠ У пользователя с данным упоминанием/никнеймом не найдено записей изменений дней к сроку'
         if re.match(screen_name_pat, screen_name):
             uid = re.findall(r'[0-9]+', screen_name)[0]
             info_dayshistory = await get_dayshistory_info_by_id(uid)
@@ -227,7 +227,7 @@ async def cmd_dayshistory(message: Message, screen_name=None):
                     }
                     message_info_dayshistory = await construct_message_dayshistory(info_dayshistory, leader_info_dayshistory)
                 else:
-                    await message.answer('Данный пользователь снят!') # Дописать добычу данных из архива и проверку на адм
+                    await message.answer('⚠ Данный пользователь снят!') # Дописать добычу данных из архива и проверку на адм
                     message_info_dayshistory = await construct_message_dayshistory(info_dayshistory, leader_info_dayshistory)
                 await message.answer(message_info_dayshistory)
             else:
@@ -252,7 +252,7 @@ async def cmd_dayshistory(message: Message, screen_name=None):
             else:
                 await message.answer(message_not_find)
         else:
-            await message.answer('Никнейм/упоминание введено некорректно. Формат: @Упоминание/Nick_Name')
+            await message.answer('⚠ Никнейм/упоминание введено некорректно. Формат: @Упоминание/Nick_Name')
     else:
         await message.answer('⚠ Используйте следующий синтаксис: /dayshistory [@Упоминание] или /dayshistory Nick_Name')
 
@@ -268,9 +268,9 @@ async def cmd_getip(message: Message, ip=None):
                 message_ip_infomation = await construct_message_ip_information(response_ip_information)
                 await message.answer(message_ip_infomation)
             else:
-                await message.answer('Такого IP адреса не существует. Если это ошибка, обратитесь к руководству Jantugei Inc.')
+                await message.answer('⚠ Такого IP адреса не существует. Если это ошибка, обратитесь к руководству Jantugei Inc.')
         else:
-            await message.answer('Неверный формат IP адреса или такого IP адреса не существует.')
+            await message.answer('⚠ Неверный формат IP адреса или такого IP адреса не существует.')
     else:
         await message.answer('⚠ Используйте следующий синтаксис: /getip [ip] | Формат IP: x.x.x.x')
 
@@ -294,7 +294,7 @@ async def cmd_checkblacklist(message: Message, nickname=None):
         try:
             nickname = re.findall(r'\w+_\w+', nickname)[0]
         except:
-            await message.answer('⚠ Никнейм пользователя введен некорректно. Формат: Nick_Name. Напиши + в баг репорте')# Пасхалка для тестеров, проверка качества работы
+            await message.answer('⚠ Никнейм пользователя введен некорректно. Формат: Nick_Name.')# Пасхалка для тестеров, проверка качества работы
             return
         player_info_black = await get_info_blacklist_by_name(nickname)
         if player_info_black["status"]:
@@ -303,7 +303,7 @@ async def cmd_checkblacklist(message: Message, nickname=None):
         else:
             await message.answer('⚠ Данный пользователь не находится в черном списке.')
     else:
-        await message.answer('⚠ Используйте следующий синтаксис: /checkblacklist Nick_Name')
+        await message.answer('♻ Используйте следующий синтаксис: /checkblacklist Nick_Name')
 
 
 # Команды для 3 уровня доступа и выше
@@ -329,7 +329,7 @@ async def cmd_formslist(message: Message):
         except Exception as er:
             print('⚠ Ошибка в команде /formslist. Текст ошибки: ', er)
     else:
-        await message.answer('♻ На данный момент нет пользователей с доступом к форме')
+        await message.answer('⚠ На данный момент нет пользователей с доступом к форме')
 
 
 @bl.message(VBMLRule('/getdsid'), CheckUserDostup([3, 4, 5, 6, 7, 8, 9, 10, 11]))
@@ -361,9 +361,9 @@ async def cmd_formremove(message: Message, screen_name=None):
                 else:
                     await message.answer('🚫 Произвошла неизвестная ошибка при отправке в личные сообщения 🚫')
             else:
-                await message.answer('Данный пользователь не имеет доступа к заполнению формы')
+                await message.answer('⚠ Данный пользователь не имеет доступа к заполнению формы')
         else:
-            message_find_form_done = 'Данный пользователь находится на стадии одобрения, то есть он уже заполнил форму. В случае если это не так, обратитесь к руководству Jantugei Inc.'
+            message_find_form_done = '⚠ Данный пользователь находится на стадии одобрения, то есть он уже заполнил форму. В случае если это не так, обратитесь к руководству Jantugei Inc.'
             await message.answer(message_find_form_done)
     else:
         syntax_message = '⚠ Используйте следующий синтаксис: /formremove [@Упоминание]'
