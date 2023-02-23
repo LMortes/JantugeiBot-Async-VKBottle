@@ -76,12 +76,12 @@ async def construct_message_info_formaccess(forms_info):
 
 
 async def construct_message_ip_information(response_ip):
-    message_ip = 'Информация по запрошенному IP адресу:\n\n'\
-                 f'IP адрес: {response_ip["response_ip"]["ip"]}\n' \
-                 f'Страна: {response_ip["response_ip"]["country"]}\n' \
-                 f'Город: {response_ip["response_ip"]["city"]}\n' \
-                 f'Часовой пояс: {response_ip["response_ip"]["timezone"]}\n' \
-                 f'Провайдер: {response_ip["response_ip"]["isp"]}'
+    message_ip = '📂  Информация по запрошенному IP адресу:\n\n'\
+                 f'🌐 IP адрес: {response_ip["response_ip"]["ip"]}\n' \
+                 f'🗾 Страна: {response_ip["response_ip"]["country"]}\n' \
+                 f'🗾 Город: {response_ip["response_ip"]["city"]}\n' \
+                 f'🕧 Часовой пояс: {response_ip["response_ip"]["timezone"]}\n' \
+                 f'💻 Провайдер: {response_ip["response_ip"]["isp"]}'
     return message_ip
 
 
@@ -91,10 +91,10 @@ async def construct_message_dayshistory(info_dayshistory, leader_info_dayshistor
     message_info_dayshistory = ''
     if leader_info_dayshistory:
         days_on_post = leader_info_dayshistory["end_date"] - leader_info_dayshistory["start_date"]
-        message_info_dayshistory = f'История изменений дней к сроку - [id{leader_info_dayshistory["vk_id"]}|{leader_info_dayshistory["name"]}]\n'\
-                              f'Дата назначения: {leader_info_dayshistory["start_date"]}\n' \
-                              f'Дата снятия: {leader_info_dayshistory["end_date"]}\n' \
-                              f'Дней на посту: {days_on_post.days}\n\n'
+        message_info_dayshistory = f'📂 История изменений дней к сроку - [id{leader_info_dayshistory["vk_id"]}|{leader_info_dayshistory["name"]}]\n'\
+                              f'📅 Дата назначения: {leader_info_dayshistory["start_date"]}\n' \
+                              f'📅 Дата снятия: {leader_info_dayshistory["end_date"]}\n' \
+                              f'📅 Дней на посту: {days_on_post.days}\n\n'
     for row in reversed(info_dayshistory["info_dayshistory"]):
         if row[4] == 0:
             add_or_remove = '-'
