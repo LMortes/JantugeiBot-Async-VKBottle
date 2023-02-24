@@ -8,8 +8,10 @@ from request_functions import *
 from user_bot_functions import *
 from message_constructor import *
 from vkbottle.dispatch.rules.base import VBMLRule
+
 bl = BotLabeler()
 POLLING_IS_ON = True
+
 
 # Команда для всех
 
@@ -128,7 +130,6 @@ async def cmd_peer_id(message: Message):
     await message.answer(result_id)
 
 
-
 @bl.message(VBMLRule(['/ao', '/ao <ping>']), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_ao(message: Message, ping=None):
     if ping is not None:
@@ -141,10 +142,11 @@ async def cmd_ao(message: Message, ping=None):
     else:
         await message.answer('⚙ Используйте следующий синтаксис: /ao [@Упоминание]')
 
+
 @bl.message(VBMLRule(['/info', '/info <screen_name>']), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_info(message: Message, screen_name=None):
     dostup = await get_user_dostup(message.from_id)
-    if screen_name is not None: # Дописать info с параметрами
+    if screen_name is not None:  # Дописать info с параметрами
         try:
             uid = re.findall(r'[0-9]+', screen_name)[0]
             leader_info = await get_info_leader(uid)
@@ -157,7 +159,7 @@ async def cmd_info(message: Message, screen_name=None):
                 await message.answer(message_info_admin)
             else:
                 await message.answer('⚠ Данный пользователь не найден в базе данных')
-                pass # Тут будет добыча из архива с доступом
+                pass  # Тут будет добыча из архива с доступом
         except:
             try:
                 nickname = re.findall(r'\w+_\w+', screen_name)[0]
@@ -171,7 +173,7 @@ async def cmd_info(message: Message, screen_name=None):
                     await message.answer(message_info_admin)
                 else:
                     await message.answer('⚠ Данный пользователь не найден в базе данных')
-                    pass # Тут будет добыча из архива с доступом
+                    pass  # Тут будет добыча из архива с доступом
             except:
                 if screen_name.startswith('@'):
                     await message.answer('⚠ Упоминание введено некорректно')
@@ -206,7 +208,8 @@ async def cmd_scorehistory(message: Message):
     await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
-@bl.message(VBMLRule(['/dayshistory', '/dayshistory <screen_name>']), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
+@bl.message(VBMLRule(['/dayshistory', '/dayshistory <screen_name>']),
+            CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_dayshistory(message: Message, screen_name=None):
     if screen_name is not None:
         screen_name_pat = re.compile("\[id[0-9]+")
@@ -225,10 +228,13 @@ async def cmd_dayshistory(message: Message, screen_name=None):
                         "start_date": leader_info["leader_info"][7],
                         "end_date": leader_info["leader_info"][8]
                     }
-                    message_info_dayshistory = await construct_message_dayshistory(info_dayshistory, leader_info_dayshistory)
+                    message_info_dayshistory = await construct_message_dayshistory(info_dayshistory,
+                                                                                   leader_info_dayshistory)
                 else:
-                    await message.answer('⚠ Данный пользователь снят!') # Дописать добычу данных из архива и проверку на адм
-                    message_info_dayshistory = await construct_message_dayshistory(info_dayshistory, leader_info_dayshistory)
+                    await message.answer(
+                        '⚠ Данный пользователь снят!')  # Дописать добычу данных из архива и проверку на адм
+                    message_info_dayshistory = await construct_message_dayshistory(info_dayshistory,
+                                                                                   leader_info_dayshistory)
                 await message.answer(message_info_dayshistory)
             else:
                 await message.answer(message_not_find)
@@ -244,10 +250,13 @@ async def cmd_dayshistory(message: Message, screen_name=None):
                         "start_date": leader_info["leader_info"][7],
                         "end_date": leader_info["leader_info"][8]
                     }
-                    message_info_dayshistory = await construct_message_dayshistory(info_dayshistory, leader_info_dayshistory)
+                    message_info_dayshistory = await construct_message_dayshistory(info_dayshistory,
+                                                                                   leader_info_dayshistory)
                 else:
-                    await message.answer('Данный пользователь снят!')  # Дописать добычу данных из архива и проверку на адм
-                    message_info_dayshistory = await construct_message_dayshistory(info_dayshistory, leader_info_dayshistory)
+                    await message.answer(
+                        'Данный пользователь снят!')  # Дописать добычу данных из архива и проверку на адм
+                    message_info_dayshistory = await construct_message_dayshistory(info_dayshistory,
+                                                                                   leader_info_dayshistory)
                 await message.answer(message_info_dayshistory)
             else:
                 await message.answer(message_not_find)
@@ -255,7 +264,6 @@ async def cmd_dayshistory(message: Message, screen_name=None):
             await message.answer('⚠ Никнейм/упоминание введено некорректно. Формат: @Упоминание/Nick_Name')
     else:
         await message.answer('⚠ Используйте следующий синтаксис: /dayshistory [@Упоминание] или /dayshistory Nick_Name')
-
 
 
 @bl.message(VBMLRule(['/getip', '/getip <ip>']), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
@@ -268,17 +276,64 @@ async def cmd_getip(message: Message, ip=None):
                 message_ip_infomation = await construct_message_ip_information(response_ip_information)
                 await message.answer(message_ip_infomation)
             else:
-                await message.answer('⚠ Такого IP адреса не существует. Если это ошибка, обратитесь к руководству Jantugei Inc.')
+                await message.answer(
+                    '⚠ Такого IP адреса не существует. Если это ошибка, обратитесь к руководству Jantugei Inc.')
         else:
             await message.answer('⚠ Неверный формат IP адреса или такого IP адреса не существует.')
     else:
         await message.answer('⚠ Используйте следующий синтаксис: /getip [ip] | Формат IP: x.x.x.x')
 
 
-@bl.message(VBMLRule('/fonline'), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
-async def cmd_fonline(message: Message):
-    await message.answer('⚠ Данная команда находится на этапе разработки')
-
+@bl.message(VBMLRule(['/fonline', '/fonline <server:int>', '/fonline <server:int> <fraction:int>']), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
+async def cmd_fonline(message: Message, server: int = None, fraction: int = None):
+    message_syntax = '⚠ Используйте следующий синтаксис: /fonline [номер сервера(1-24)] [id фракции(1-29)]\n\n' \
+                     'Доступные ID фракций:\n' \
+                     '1 - LSPD\n' \
+                     '2 - RCPD\n' \
+                     '3 - FBI\n' \
+                     '4 - SFPD\n' \
+                     '5 - LSMC\n' \
+                     '6 - Правительство\n' \
+                     '7 - ТСР\n' \
+                     '8 - SFMC\n' \
+                     '9 - Автошкола\n' \
+                     '10 - СМИ ЛС\n' \
+                     '11 - Grove\n' \
+                     '12 - Vagos\n' \
+                     '13 - Ballas\n' \
+                     '14 - Aztec\n' \
+                     '15 - Rifa\n' \
+                     '16 - RM\n' \
+                     '17 - Yakuza\n' \
+                     '18 - LCN\n' \
+                     '19 - Warlock MC\n' \
+                     '20 - Army LS\n' \
+                     '21 - Центральный банк\n' \
+                     '22 - LVMC\n' \
+                     '23 - LVPD\n' \
+                     '24 - СМИ ЛВ\n' \
+                     '25 - Night Wolves\n' \
+                     '26 - СМИ СФ\n' \
+                     '27 - Army SF\n' \
+                     '29 - Страховая Компания\n'
+    if server is not None:
+        if 1 <= server <= 24:
+            if fraction is not None:
+                if (1 <= fraction <= 29) and (fraction != 28):
+                    fonline_list = await api_prikol_fonline(server, fraction)
+                    if fonline_list["status"]:
+                        message_fonline = await construct_message_fonline(fonline_list["response_fonline"])
+                        await message.answer(message_fonline)
+                    else:
+                        await message.answer('⚠ Произошла системная ошибка. Скорее всего вы ввели некорректные данные. Если это не так, обратитесь к руководству Jantugei Inc')
+                else:
+                    await message.answer('⚠ Такой фракции не существует. Ознакомьтесь со списком доступных фракций. Введите /fonline')
+            else:
+                await message.answer('⚠ Вы не ввели ID фракции. Ознакомьтесь со списком доступных фракций. Введите /fonline')
+        else:
+            await message.answer('⚠ Такого сервера не существует. Введите номер сервера от 1-24')
+    else:
+        await message.answer(message_syntax)
 
 
 # Команды для 1 уровня доступа и выше
@@ -288,13 +343,15 @@ async def cmd_online(message: Message):
     await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
-@bl.message(VBMLRule(['/checkblacklist', '/checkblacklist <nickname>']), CheckUserDostup([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
+@bl.message(VBMLRule(['/checkblacklist', '/checkblacklist <nickname>']),
+            CheckUserDostup([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_checkblacklist(message: Message, nickname=None):
     if nickname is not None:
         try:
             nickname = re.findall(r'\w+_\w+', nickname)[0]
         except:
-            await message.answer('⚠ Никнейм пользователя введен некорректно. Формат: Nick_Name.')# Пасхалка для тестеров, проверка качества работы
+            await message.answer(
+                '⚠ Никнейм пользователя введен некорректно. Формат: Nick_Name.')  # Пасхалка для тестеров, проверка качества работы
             return
         player_info_black = await get_info_blacklist_by_name(nickname)
         if player_info_black["status"]:
@@ -370,8 +427,8 @@ async def cmd_formremove(message: Message, screen_name=None):
         await message.answer(syntax_message)
 
 
-
-@bl.message(VBMLRule(['/formaccess', '/formaccess <screen_name> <type_form:int>']), CheckUserDostup([4, 5, 6, 7, 8, 9, 10, 11]))
+@bl.message(VBMLRule(['/formaccess', '/formaccess <screen_name> <type_form:int>']),
+            CheckUserDostup([4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_formaccess(message: Message, screen_name=None, type_form: int = None):
     user_dostup = await get_user_dostup(message.from_id)
     if screen_name is not None:
@@ -514,7 +571,9 @@ async def cmd_test(message: Message, text=None):
         try:
             await set_test_info(adm_name, text)
             await message.answer('✅ Тест успешно записан и передан тестироващикам!')
-            await bot.api.messages.send(peer_id=TESTERS_DIALOG_ID, message='🔔 Поступил новый тест-репорт. Чтобы вывести список введите - /testlist 🔔', random_id=0)
+            await bot.api.messages.send(peer_id=TESTERS_DIALOG_ID,
+                                        message='🔔 Поступил новый тест-репорт. Чтобы вывести список введите - /testlist 🔔',
+                                        random_id=0)
         except:
             await message.answer('⚠ Неизвестная ошибка!')
     else:
@@ -553,6 +612,7 @@ async def cmd_fixbug(message: Message, id: int = None):
         await message.answer(msg)
     else:
         await message.answer('Введите id баг репорта.')
+
 
 @bl.message(VBMLRule('/formpolling'), CheckUserDostup(11))
 async def polling_form_done(message: Message):
@@ -655,7 +715,7 @@ async def polling_form_done(message: Message):
 
             # else:
             #     await message.answer('✅ Ничего не найдено')  # Убрать, когда будет полностью рабочая система
-            
+
             await asyncio.sleep(120)  # Задержка поллинга таблицы с формами
     except Exception as err:
         await message.answer('⚠ По неизвестной причине поллинг базы данных прекращен')
@@ -692,19 +752,23 @@ async def click_button_form(event: GroupTypes.MessageEvent):
                 message_for_user = '✅ Отправка в личные сообщения успешна'
                 message_for_user_error = '⚠ Произошла ошибка при отправке в личные сообшения.'
                 # После нажатия на кнопку одобрить для лидерской формы
-                if event.object.payload["cmd"] == "accept_leader_form":  # Дописать добавление ролей в дискорде и добавлене в беседы
+                if event.object.payload[
+                    "cmd"] == "accept_leader_form":  # Дописать добавление ролей в дискорде и добавлене в беседы
                     await bot.api.messages.send(peer_id=event.object.peer_id, message=message_accept, random_id=0)
                     is_set_leader = await set_leader(user_id)
                     if is_set_leader:
                         await bot.api.messages.send(peer_id=event.object.peer_id, message=message_set, random_id=0)
-                        is_send_user_message_accept = await send_user_message_formaccept(user_id, user_name, adm_id, adm_name)
+                        is_send_user_message_accept = await send_user_message_formaccept(user_id, user_name, adm_id,
+                                                                                         adm_name)
                         if is_send_user_message_accept:
-                            await bot.api.messages.send(peer_id=event.object.peer_id, message=message_for_user, random_id=0)
+                            await bot.api.messages.send(peer_id=event.object.peer_id, message=message_for_user,
+                                                        random_id=0)
                         else:
                             await bot.api.messages.send(peer_id=event.object.peer_id, message=message_for_user_error,
                                                         random_id=0)
                     else:
-                        await bot.api.messages.send(peer_id=event.object.peer_id, message=message_set_error, random_id=0)
+                        await bot.api.messages.send(peer_id=event.object.peer_id, message=message_set_error,
+                                                    random_id=0)
                 # После нажатия на кнопку отклонить на лидерской и админской форме
                 elif (event.object.payload["cmd"] == "decline_leader_form") or \
                         (event.object.payload["cmd"] == "decline_admin_form"):
@@ -714,10 +778,12 @@ async def click_button_form(event: GroupTypes.MessageEvent):
                     elif event.object.payload["cmd"] == "decline_admin_form":
                         is_remove = await remove_formaccess_done_admin(user_id)
                     if is_remove:
-                        await bot.api.messages.send(peer_id=event.object.peer_id, message=message_remove_form, random_id=0)
+                        await bot.api.messages.send(peer_id=event.object.peer_id, message=message_remove_form,
+                                                    random_id=0)
                         is_send_user_message = await send_user_message_formdecline(user_id, adm_id, adm_name)
                         if is_send_user_message:
-                            await bot.api.messages.send(peer_id=event.object.peer_id, message=message_for_user, random_id=0)
+                            await bot.api.messages.send(peer_id=event.object.peer_id, message=message_for_user,
+                                                        random_id=0)
                         else:
                             await bot.api.messages.send(peer_id=event.object.peer_id, message=message_for_user_error,
                                                         random_id=0)
@@ -731,13 +797,16 @@ async def click_button_form(event: GroupTypes.MessageEvent):
                     is_set_admin = await set_admin(user_id)
                     if is_set_admin:
                         await bot.api.messages.send(peer_id=event.object.peer_id, message=message_set, random_id=0)
-                        is_send_user_message_accept = await send_user_message_formaccept(user_id, user_name, adm_id, adm_name)
+                        is_send_user_message_accept = await send_user_message_formaccept(user_id, user_name, adm_id,
+                                                                                         adm_name)
                         if is_send_user_message_accept:
-                            await bot.api.messages.send(peer_id=event.object.peer_id, message=message_for_user, random_id=0)
+                            await bot.api.messages.send(peer_id=event.object.peer_id, message=message_for_user,
+                                                        random_id=0)
                         else:
                             await bot.api.messages.send(peer_id=event.object.peer_id, message=message_for_user_error,
                                                         random_id=0)
                     else:
-                        await bot.api.messages.send(peer_id=event.object.peer_id, message=message_set_error, random_id=0)
+                        await bot.api.messages.send(peer_id=event.object.peer_id, message=message_set_error,
+                                                    random_id=0)
     except Exception as er:
         print(er)

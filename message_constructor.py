@@ -109,3 +109,36 @@ async def construct_message_dayshistory(info_dayshistory, leader_info_dayshistor
         message_dayshistory += f'📜 {row[8]} [id{row[1]}|{row[2]}] было установлено {add_or_remove}{row[3]} {day} к окончанию срока от [id{row[6]}|{row[7]}]. Причина: {row[5]}\n'
     result_message_dayshistory = message_info_dayshistory + message_dayshistory
     return result_message_dayshistory
+
+
+async def construct_message_fonline(fonline_list):
+    message_fonline = ''
+    message_leader_online = ''
+    message_online_players = ''
+    zams_count = 0
+    zams_count_online = 0
+    count_list = 1
+    if fonline_list["isLeaderOnline"]:
+        message_leader_online += f'Лидер {fonline_list["leaderNick"]} в данный момент в сети.'
+    else:
+        message_leader_online += f'Лидер {fonline_list["leaderNick"]} в данный момент не в сети.'
+
+    for player_name, player in fonline_list["players"].items():
+        if player["rank"] == 9:
+            zams_count += 1
+            if player["isOnline"]:
+                zams_count_online += 1
+
+    message_fonline += f'Игроки онлайн в организации {fonline_list["fractionLabel"]} сервера {fonline_list["server"]}\n\n'\
+                       f'Общее количество игроков в данной фракции - {fonline_list["totalPlayers"]}\n'\
+                       f'{message_leader_online}\n'\
+                       f'Рекорд онлайна - {fonline_list["record"]["count"]} | Установил лидер - {fonline_list["record"]["leader"]} | Дата - {fonline_list["record"]["date"]}\n'\
+                       f'Заместителей в сети - {zams_count_online} из {zams_count}\n'\
+                       f'Онлайн фракции на данный момент - {fonline_list["totalOnline"]}\n\n'\
+
+    for player_name, player in fonline_list["players"].items():
+        if player["isOnline"]:
+            message_online_players += f'{count_list}. {player_name} > {player["rankLabel"]} > [{player["rank"]}]\n'
+            count_list += 1
+    result_message_fonline = message_fonline + message_online_players
+    return result_message_fonline
