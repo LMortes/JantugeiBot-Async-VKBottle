@@ -315,7 +315,7 @@ async def cmd_fonline(message: Message, server: int = None, fraction: int = None
                      '25 - Night Wolves🔫\n' \
                      '26 - СМИ СФ📟\n' \
                      '27 - Army SF🚧\n' \
-                     '29 - Страховая Компания📝\n'
+                     '29 - Страховая Компания📝'
     if server is not None:
         if 1 <= server <= 24:
             if fraction is not None:
