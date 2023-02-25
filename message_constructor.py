@@ -119,9 +119,9 @@ async def construct_message_fonline(fonline_list):
     zams_count_online = 0
     count_list = 1
     if fonline_list["isLeaderOnline"]:
-        message_leader_online += f'Лидер {fonline_list["leaderNick"]} в данный момент в сети.'
+        message_leader_online += f'👽 Лидер {fonline_list["leaderNick"]} в данный момент в сети.'
     else:
-        message_leader_online += f'Лидер {fonline_list["leaderNick"]} в данный момент не в сети.'
+        message_leader_online += f'👽 Лидер {fonline_list["leaderNick"]} в данный момент не в сети.'
 
     for player_name, player in fonline_list["players"].items():
         if player["rank"] == 9:
@@ -129,12 +129,12 @@ async def construct_message_fonline(fonline_list):
             if player["isOnline"]:
                 zams_count_online += 1
 
-    message_fonline += f'Игроки онлайн в организации {fonline_list["fractionLabel"]} сервера {fonline_list["server"]}\n\n'\
-                       f'Общее количество игроков в данной фракции - {fonline_list["totalPlayers"]}\n'\
+    message_fonline += f'👥 Игроки онлайн в организации {fonline_list["fractionLabel"]} сервера {fonline_list["server"]}\n\n'\
+                       f'🔢 Общее количество игроков в данной фракции - {fonline_list["totalPlayers"]}\n'\
                        f'{message_leader_online}\n'\
-                       f'Рекорд онлайна - {fonline_list["record"]["count"]} | Установил лидер - {fonline_list["record"]["leader"]} | Дата - {fonline_list["record"]["date"]}\n'\
-                       f'Заместителей в сети - {zams_count_online} из {zams_count}\n'\
-                       f'Онлайн фракции на данный момент - {fonline_list["totalOnline"]}\n\n'\
+                       f'📊 Рекорд онлайна - {fonline_list["record"]["count"]} | Установил лидер - {fonline_list["record"]["leader"]} | Дата - {fonline_list["record"]["date"]}\n'\
+                       f'👻 Заместителей в сети - {zams_count_online} из {zams_count}\n'\
+                       f'🌟 Онлайн фракции на данный момент - {fonline_list["totalOnline"]}\n\n'\
 
     for player_name, player in fonline_list["players"].items():
         if player["isOnline"]:
