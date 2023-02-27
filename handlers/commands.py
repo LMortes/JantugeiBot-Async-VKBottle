@@ -362,35 +362,35 @@ async def cmd_getip(message: Message, ip=None):
 @bl.message(VBMLRule(['/fonline', '/fonline <server:int>', '/fonline <server:int> <fraction:int>']), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_fonline(message: Message, server: int = None, fraction: int = None):
     message_syntax = '⚠ Используйте следующий синтаксис: /fonline [номер сервера(1-24)] [id фракции(1-29)]\n\n' \
-                     'Доступные ID фракций:\n' \
-                     '1 - LSPD\n' \
-                     '2 - RCPD\n' \
-                     '3 - FBI\n' \
-                     '4 - SFPD\n' \
-                     '5 - LSMC\n' \
-                     '6 - Правительство\n' \
-                     '7 - ТСР\n' \
-                     '8 - SFMC\n' \
-                     '9 - Автошкола\n' \
-                     '10 - СМИ ЛС\n' \
-                     '11 - Grove\n' \
-                     '12 - Vagos\n' \
-                     '13 - Ballas\n' \
-                     '14 - Aztec\n' \
-                     '15 - Rifa\n' \
-                     '16 - RM\n' \
-                     '17 - Yakuza\n' \
-                     '18 - LCN\n' \
-                     '19 - Warlock MC\n' \
-                     '20 - Army LS\n' \
-                     '21 - Центральный банк\n' \
-                     '22 - LVMC\n' \
-                     '23 - LVPD\n' \
-                     '24 - СМИ ЛВ\n' \
-                     '25 - Night Wolves\n' \
-                     '26 - СМИ СФ\n' \
-                     '27 - Army SF\n' \
-                     '29 - Страховая Компания\n'
+                     '🔢 Доступные ID фракций:\n' \
+                     '1 - LSPD🚨\n' \
+                     '2 - RCPD🚨\n' \
+                     '3 - FBI🚨\n' \
+                     '4 - SFPD🚨\n' \
+                     '5 - LSMC🚑\n' \
+                     '6 - Правительство🗽\n' \
+                     '7 - ТСР🚧\n' \
+                     '8 - SFMC🚑\n' \
+                     '9 - Автошкола🗾\n' \
+                     '10 - СМИ ЛС📟\n' \
+                     '11 - Grove🔫\n' \
+                     '12 - Vagos🔫\n' \
+                     '13 - Ballas🔫\n' \
+                     '14 - Aztec🔫\n' \
+                     '15 - Rifa🔫\n' \
+                     '16 - RM🔪\n' \
+                     '17 - Yakuza🔪\n' \
+                     '18 - LCN🔪\n' \
+                     '19 - Warlock MC🔪\n' \
+                     '20 - Army LS🚧\n' \
+                     '21 - Центральный банк💳\n' \
+                     '22 - LVMC🚑\n' \
+                     '23 - LVPD🚨\n' \
+                     '24 - СМИ ЛВ📟\n' \
+                     '25 - Night Wolves🔫\n' \
+                     '26 - СМИ СФ📟\n' \
+                     '27 - Army SF🚧\n' \
+                     '29 - Страховая Компания📝'
     if server is not None:
         if 1 <= server <= 24:
             if fraction is not None:
