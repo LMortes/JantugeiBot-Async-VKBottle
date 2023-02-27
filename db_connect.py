@@ -407,6 +407,41 @@ async def get_dayshistory_info_by_nickname(name):
                 }
         return info_dayshistory
 
+
+async def get_scorehistory_info_by_id(user_id):
+    async with await connection(loop) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute("SELECT * FROM scorehistory WHERE vk_id=%s", user_id)
+            if cur.rowcount > 0:
+                rows_info_scorehistory = await cur.fetchall()
+                info_scorehistory = {
+                    "info_scorehistory": rows_info_scorehistory,
+                    "status": True,
+                }
+            else:
+                info_scorehistory = {
+                    "info_scorehistory": [],
+                    "status": False,
+                }
+        return info_scorehistory
+
+
+async def get_scorehistory_info_by_nickname(name):
+    async with await connection(loop) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute("SELECT * FROM scorehistory WHERE server_name=%s", name)
+            if cur.rowcount > 0:
+                rows_info_scorehistory = await cur.fetchall()
+                info_scorehistory = {
+                    "info_scorehistory": rows_info_scorehistory,
+                    "status": True,
+                }
+            else:
+                info_scorehistory = {
+                    "info_scorehistory": [],
+                    "status": False,
+                }
+        return info_scorehistory
 # Сеттеры и удаление
 
 

@@ -85,15 +85,15 @@ async def construct_message_ip_information(response_ip):
     return message_ip
 
 
-async def construct_message_dayshistory(info_dayshistory, leader_info_dayshistory):
+async def construct_message_dayshistory(info_dayshistory, leader_or_admin_info_dayshistory):
     add_or_remove = ''
     message_dayshistory = ''
     message_info_dayshistory = ''
-    if leader_info_dayshistory:
-        days_on_post = leader_info_dayshistory["end_date"] - leader_info_dayshistory["start_date"]
-        message_info_dayshistory = f'📂 История изменений дней к сроку - [id{leader_info_dayshistory["vk_id"]}|{leader_info_dayshistory["name"]}]\n'\
-                              f'📅 Дата назначения: {leader_info_dayshistory["start_date"]}\n' \
-                              f'📅 Дата снятия: {leader_info_dayshistory["end_date"]}\n' \
+    if leader_or_admin_info_dayshistory:
+        days_on_post = leader_or_admin_info_dayshistory["end_date"] - leader_or_admin_info_dayshistory["start_date"]
+        message_info_dayshistory = f'📂 История изменений дней к сроку - [id{leader_or_admin_info_dayshistory["vk_id"]}|{leader_or_admin_info_dayshistory["name"]}]\n'\
+                              f'📅 Дата назначения: {leader_or_admin_info_dayshistory["start_date"]}\n' \
+                              f'📅 Дата снятия: {leader_or_admin_info_dayshistory["end_date"]}\n' \
                               f'📅 Дней на посту: {days_on_post.days}\n\n'
     for row in reversed(info_dayshistory["info_dayshistory"]):
         if row[4] == 0:
@@ -109,6 +109,29 @@ async def construct_message_dayshistory(info_dayshistory, leader_info_dayshistor
         message_dayshistory += f'📜 {row[8]} [id{row[1]}|{row[2]}] было установлено {add_or_remove}{row[3]} {day} к окончанию срока от [id{row[6]}|{row[7]}]. Причина: {row[5]}\n'
     result_message_dayshistory = message_info_dayshistory + message_dayshistory
     return result_message_dayshistory
+
+
+async def construct_message_scorehistory(info_scorehistory, leader_or_admin_info_scorehistory):
+    add_or_remove = ''
+    message_scorehistory = ''
+    message_info_scorehistory = ''
+    if leader_or_admin_info_scorehistory:
+        message_info_scorehistory = f'📖 История изменения баллов - [id{leader_or_admin_info_scorehistory["vk_id"]}|{leader_or_admin_info_scorehistory["name"]}]\n' \
+                                   f'➕ Текущее количество баллов: {leader_or_admin_info_scorehistory["score"]}\n\n'
+    for row in reversed(info_scorehistory["info_scorehistory"]):
+        if row[4] == 0:
+            add_or_remove = '-'
+        elif row[4] == 1:
+            add_or_remove = '+'
+        if row[3] == 1:
+            ball = 'балл'
+        elif (row[3] == 2) or (row[3] == 3) or (row[3] == 4):
+            ball = 'балла'
+        else:
+            ball = 'баллов'
+        message_scorehistory += f'📜 {row[8]} [id{row[1]}|{row[2]}] было установлено {add_or_remove}{row[3]} {ball} от [id{row[6]}|{row[7]}]. Причина: {row[5]}\n'
+    result_message_scorehistory = message_info_scorehistory + message_scorehistory
+    return result_message_scorehistory
 
 
 async def construct_message_fonline(fonline_list):
@@ -142,3 +165,15 @@ async def construct_message_fonline(fonline_list):
             count_list += 1
     result_message_fonline = message_fonline + message_online_players
     return result_message_fonline
+
+
+async def construct_message_cmdmsg(admin_info, text, user_ids):
+    message_hidden_tags = ''
+    for tag in user_ids:
+        message_hidden_tags += f'[id{tag}|&#8203;] '
+    message_text = f'❗ Сообщение от {admin_info["admin_info"][5]} ❗\n\n'\
+                   f'📍 {text}\n\n'\
+                   f'🗣 [id{admin_info["admin_info"][1]}|{admin_info["admin_info"][2]}] {message_hidden_tags}'
+    return message_text
+
+

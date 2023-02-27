@@ -203,13 +203,74 @@ async def cmd_warnhistory(message: Message):
     await message.answer('⚠ Данная команда находится на этапе разработки')
 
 
-@bl.message(VBMLRule('/scorehistory'), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
-async def cmd_scorehistory(message: Message):
-    await message.answer('⚠ Данная команда находится на этапе разработки')
+@bl.message(VBMLRule(['/scorehistory', '/scorehistory <screen_name>']), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
+async def cmd_scorehistory(message: Message, screen_name=None):
+    if screen_name is not None:
+        screen_name_pat = re.compile("\[id[0-9]+")
+        nickname_pat = re.compile("\w+_\w+")
+        leader_info_scorehistory = {}
+        message_not_find = '⚠ У пользователя с данным упоминанием/никнеймом не найдено записей изменений баллов'
+        if re.match(screen_name_pat, screen_name):
+            uid = re.findall(r'[0-9]+', screen_name)[0]
+            info_scorehistory = await get_scorehistory_info_by_id(uid)
+            if info_scorehistory["status"]:
+                leader_info = await get_info_leader(uid)
+                if leader_info["status"]:
+                    leader_info_scorehistory = {
+                        "vk_id": leader_info["leader_info"][1],
+                        "name": leader_info["leader_info"][2],
+                        "score": leader_info["leader_info"][10],
+                    }
+                    message_info_scorehistory = await construct_message_scorehistory(info_scorehistory, leader_info_scorehistory)
+                else:
+                    admin_info = await get_admin_info(uid)
+                    if admin_info["status"]:
+                        admin_info_scorehistory = {
+                            "vk_id": admin_info["admin_info"][1],
+                            "name": admin_info["admin_info"][2],
+                            "score": admin_info["admin_info"][10],
+                        }
+                        message_info_scorehistory = await construct_message_scorehistory(info_scorehistory, admin_info_scorehistory)
+                    else:
+                        await message.answer('⚠ Данный пользователь снят! Команда на доработке, будет подтяжка из архива.')  # Дописать добычу данных из архива
+                        message_info_scorehistory = await construct_message_scorehistory(info_scorehistory, leader_info_scorehistory)
+                await message.answer(message_info_scorehistory)
+            else:
+                await message.answer(message_not_find)
+        elif re.match(nickname_pat, screen_name):
+            nickname = screen_name
+            info_scorehistory = await get_scorehistory_info_by_nickname(nickname)
+            if info_scorehistory["status"]:
+                leader_info = await get_info_leader_by_name(nickname)
+                if leader_info["status"]:
+                    leader_info_scorehistory = {
+                        "vk_id": leader_info["leader_info"][1],
+                        "name": leader_info["leader_info"][2],
+                        "score": leader_info["leader_info"][10],
+                    }
+                    message_info_scorehistory = await construct_message_scorehistory(info_scorehistory, leader_info_scorehistory)
+                else:
+                    admin_info = await get_admin_info_by_name(nickname)
+                    if admin_info["status"]:
+                        admin_info_scorehistory = {
+                            "vk_id": admin_info["admin_info"][1],
+                            "name": admin_info["admin_info"][2],
+                            "score": admin_info["admin_info"][10],
+                        }
+                        message_info_scorehistory = await construct_message_scorehistory(info_scorehistory, admin_info_scorehistory)
+                    else:
+                        await message.answer('Данный пользователь снят! Команда на доработке, будет подтяжка из архива.')  # Дописать добычу данных из архива
+                        message_info_scorehistory = await construct_message_scorehistory(info_scorehistory, leader_info_scorehistory)
+                await message.answer(message_info_scorehistory)
+            else:
+                await message.answer(message_not_find)
+        else:
+            await message.answer('⚠ Никнейм/упоминание введено некорректно. Формат: @Упоминание/Nick_Name')
+    else:
+        await message.answer('⚠ Используйте следующий синтаксис: /scorehistory [@Упоминание] или /scorehistory Nick_Name')
 
 
-@bl.message(VBMLRule(['/dayshistory', '/dayshistory <screen_name>']),
-            CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
+@bl.message(VBMLRule(['/dayshistory', '/dayshistory <screen_name>']), CheckUserDostup([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_dayshistory(message: Message, screen_name=None):
     if screen_name is not None:
         screen_name_pat = re.compile("\[id[0-9]+")
@@ -228,13 +289,20 @@ async def cmd_dayshistory(message: Message, screen_name=None):
                         "start_date": leader_info["leader_info"][7],
                         "end_date": leader_info["leader_info"][8]
                     }
-                    message_info_dayshistory = await construct_message_dayshistory(info_dayshistory,
-                                                                                   leader_info_dayshistory)
+                    message_info_dayshistory = await construct_message_dayshistory(info_dayshistory, leader_info_dayshistory)
                 else:
-                    await message.answer(
-                        '⚠ Данный пользователь снят!')  # Дописать добычу данных из архива и проверку на адм
-                    message_info_dayshistory = await construct_message_dayshistory(info_dayshistory,
-                                                                                   leader_info_dayshistory)
+                    admin_info = await get_admin_info(uid)
+                    if admin_info["status"]:
+                        admin_info_dayshistory = {
+                            "vk_id": admin_info["admin_info"][1],
+                            "name": admin_info["admin_info"][2],
+                            "start_date": admin_info["admin_info"][8],
+                            "end_date": admin_info["admin_info"][8],
+                        }
+                        message_info_dayshistory = await construct_message_dayshistory(info_dayshistory, admin_info_dayshistory)
+                    else:
+                        await message.answer('⚠ Данный пользователь снят! Команда на доработке, будет подтяжка из архива.')  # Дописать добычу данных из архива
+                        message_info_dayshistory = await construct_message_dayshistory(info_dayshistory, leader_info_dayshistory)
                 await message.answer(message_info_dayshistory)
             else:
                 await message.answer(message_not_find)
@@ -250,13 +318,20 @@ async def cmd_dayshistory(message: Message, screen_name=None):
                         "start_date": leader_info["leader_info"][7],
                         "end_date": leader_info["leader_info"][8]
                     }
-                    message_info_dayshistory = await construct_message_dayshistory(info_dayshistory,
-                                                                                   leader_info_dayshistory)
+                    message_info_dayshistory = await construct_message_dayshistory(info_dayshistory, leader_info_dayshistory)
                 else:
-                    await message.answer(
-                        'Данный пользователь снят!')  # Дописать добычу данных из архива и проверку на адм
-                    message_info_dayshistory = await construct_message_dayshistory(info_dayshistory,
-                                                                                   leader_info_dayshistory)
+                    admin_info = await get_admin_info_by_name(nickname)
+                    if admin_info["status"]:
+                        admin_info_dayshistory = {
+                            "vk_id": admin_info["admin_info"][1],
+                            "name": admin_info["admin_info"][2],
+                            "start_date": admin_info["admin_info"][8],
+                            "end_date": admin_info["admin_info"][8],
+                        }
+                        message_info_dayshistory = await construct_message_dayshistory(info_dayshistory, admin_info_dayshistory)
+                    else:
+                        await message.answer('Данный пользователь снят! Команда на доработке, будет подтяжка из архива.')  # Дописать добычу данных из архива и проверку на адм
+                        message_info_dayshistory = await construct_message_dayshistory(info_dayshistory, leader_info_dayshistory)
                 await message.answer(message_info_dayshistory)
             else:
                 await message.answer(message_not_find)
@@ -395,6 +470,29 @@ async def cmd_getdsid(message: Message):
 
 
 # Команды для 4 уровня доступа и выше
+
+@bl.message(VBMLRule(['/msg', '/msg <chat_id:int>', '/msg <chat_id:int> <text>']), CheckUserDostup([4, 5, 6, 7, 8, 9, 10, 11]))
+async def cmd_msg(message: Message, chat_id : int = None, text=None):
+    if chat_id is not None:
+        if text is not None:
+            admin_info = await get_admin_info(message.from_id)
+            user_ids = []
+            try:
+                objects_chat = await bot.api.messages.get_conversation_members(peer_id=chat_id)
+            except:
+                await message.answer('⚠ Сообщение не отправлось, скорее всего вы ввели несуществующий ID беседы')
+                return
+            for member in objects_chat.profiles:
+                user_ids.append(member.id)
+            message_text = await construct_message_cmdmsg(admin_info, text, user_ids)
+            await bot.api.messages.send(peer_id=chat_id, message=message_text, random_id=0)
+            await message.answer(f'Сообщение успешно отправлено в беседу с ID: {chat_id}')
+        else:
+            await message.answer('⚠ Вы не ввели текст для отправки.')
+    else:
+        syntax_message = '⚠ Используйте следующий синтаксис: /msg [id беседы] [Текст]\n'\
+                         'Для того чтобы узнать ID беседы, пробейте /peer_id в нужной беседе'
+        await message.answer(syntax_message)
 
 
 @bl.message(VBMLRule(['/formremove', '/formremove <screen_name>']), CheckUserDostup([4, 5, 6, 7, 8, 9, 10, 11]))
