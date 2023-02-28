@@ -117,7 +117,7 @@ async def construct_message_scorehistory(info_scorehistory, leader_or_admin_info
     message_info_scorehistory = ''
     if leader_or_admin_info_scorehistory:
         message_info_scorehistory = f'📖 История изменения баллов - [id{leader_or_admin_info_scorehistory["vk_id"]}|{leader_or_admin_info_scorehistory["name"]}]\n' \
-                                   f'➕ Текущее количество баллов: {leader_or_admin_info_scorehistory["score"]}\n\n'
+                                   f'🪙 Текущее количество баллов: {leader_or_admin_info_scorehistory["score"]}\n\n'
     for row in reversed(info_scorehistory["info_scorehistory"]):
         if row[4] == 0:
             add_or_remove = '-'
