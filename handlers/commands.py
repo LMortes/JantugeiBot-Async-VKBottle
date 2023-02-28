@@ -486,7 +486,7 @@ async def cmd_msg(message: Message, chat_id : int = None, text=None):
                 user_ids.append(member.id)
             message_text = await construct_message_cmdmsg(admin_info, text, user_ids)
             await bot.api.messages.send(peer_id=chat_id, message=message_text, random_id=0)
-            await message.answer(f'Сообщение успешно отправлено в беседу с ID: {chat_id}')
+            await message.answer(f'♻️ Сообщение успешно отправлено в беседу с ID: {chat_id}')
         else:
             await message.answer('⚠ Вы не ввели текст для отправки.')
     else:
