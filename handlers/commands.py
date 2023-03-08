@@ -1,9 +1,11 @@
 import re
+import discord
 from vkbottle import GroupTypes, GroupEventType, Keyboard, Callback, KeyboardButtonColor
 from vkbottle.bot import Message
 from vkbottle.framework.labeler import BotLabeler
 from check_dostup_rule import CheckUserDostup
 from db_connect import *
+from dialog_ids import *
 from request_functions import *
 from user_bot_functions import *
 from message_constructor import *
@@ -467,16 +469,37 @@ async def cmd_formslist(message: Message):
 @bl.message(VBMLRule('/getdsid'), CheckUserDostup([3, 4, 5, 6, 7, 8, 9, 10, 11]))
 async def cmd_getdsid(message: Message):
     await message.answer('⚠ Данная команда находится на этапе разработки')
-
+    # if screen_name is not None:
+    #     try:
+    #         intents = discord.Intents.default()
+    #         intents.message_content = True
+    #         client = discord.Client(intents=intents)
+    #
+    #
+    #         id_dis = discord.utils.get(client.get_all_members(), name="LPollot", discriminator="1985")
+    #     except Exception as er:
+    #         print(er)
+    #     print(id_dis)
+    # else:
+    #     await message.answer('⚠ Используйте следующий синтаксис: /getdsid [Имя пользователя]. Формат: Example#1234')
 
 # Команды для 4 уровня доступа и выше
 
-@bl.message(VBMLRule(['/msg', '/msg <chat_id:int>', '/msg <chat_id:int> <text>']), CheckUserDostup([4, 5, 6, 7, 8, 9, 10, 11]))
-async def cmd_msg(message: Message, chat_id : int = None, text=None):
-    if chat_id is not None:
+@bl.message(VBMLRule(['/msg', '/msg <chat_id> <text>']), CheckUserDostup([4, 5, 6, 7, 8, 9, 10, 11]))
+async def cmd_msg(message: Message, chat_id=None, text=None):
+    user_dostup = await get_user_dostup(message.from_id)
+    dialogs = {
+        "develop": DEVELOPER_DIALOG_ID,
+        "testers": TESTERS_DIALOG_ID,
+        "botfunc": FUNC_BOT_DIALOG_ID,
+        "bottest": TEST_BOT_DIALOG_ID,
+    }
+    dialogs_names = list(dialogs.keys())
+    if (chat_id is not None) and (chat_id in dialogs_names):
         if text is not None:
             admin_info = await get_admin_info(message.from_id)
             user_ids = []
+            chat_id = dialogs[chat_id]
             try:
                 objects_chat = await bot.api.messages.get_conversation_members(peer_id=chat_id)
             except:
@@ -486,12 +509,20 @@ async def cmd_msg(message: Message, chat_id : int = None, text=None):
                 user_ids.append(member.id)
             message_text = await construct_message_cmdmsg(admin_info, text, user_ids)
             await bot.api.messages.send(peer_id=chat_id, message=message_text, random_id=0)
-            await message.answer(f'♻️ Сообщение успешно отправлено в беседу с ID: {chat_id}')
+            await message.answer(f'♻ Сообщение успешно отправлено в беседу с ID: {chat_id}')
         else:
             await message.answer('⚠ Вы не ввели текст для отправки.')
     else:
-        syntax_message = '⚠ Используйте следующий синтаксис: /msg [id беседы] [Текст]\n'\
-                         'Для того чтобы узнать ID беседы, пробейте /peer_id в нужной беседе'
+        syntax_message = '⚠ Используйте следующий синтаксис: /msg [имя беседы] [Текст]\n' \
+                         'Имена бесед:\n'
+        id_dialogs = '[Тут будут другие беседы для следящих]\n'
+        id_dialogs_develop = f'{list(dialogs.keys())[0]} - Беседа разработчиков Jantugei Inc\n'\
+                             f'{list(dialogs.keys())[1]} - Беседа тестировщиков\n'\
+                             f'{list(dialogs.keys())[2]} - Беседа с функциями бота\n'\
+                             f'{list(dialogs.keys())[3]} - Беседа для тестов бота\n'
+        syntax_message += id_dialogs
+        if user_dostup == 11:
+            syntax_message += id_dialogs_develop
         await message.answer(syntax_message)
 
 
