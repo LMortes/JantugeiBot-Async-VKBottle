@@ -52,7 +52,7 @@ async def send_user_message_formaccept(user_id, user_name, adm_id, adm_name):
               f'📝 Твоя заявка была одобрена администратором - [id{adm_id}|{adm_name}].\n' \
               '💬 Мы добавили тебя во все нужные конференции, выдали все роли в дискорде и выдали все нужные тебе доступы.\n' \
               '🥺 Удачи тебе на посту!\n\n' \
-              '© By Flxrencia Inc.'
+              '© By Jantugei Inc.'
     try:
         send_message = await api.messages.send(peer_id=user_id, message=message, random_id=0)
     except:
